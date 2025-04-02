@@ -20,73 +20,76 @@
 <body>
 
   <main>
-    <section id="top-half">
-      <nav>
-        <img id="top-menu" alt="hamburger-menu" src="./images/menu.png" />
-        <div id="dropdown-menu">
-          <div id="search-row">
-            <input type="text" id="searchbar" placeholder="Search city...">
-            <button id="searchButton"><img src="./images/search.png" alt="search" /></button>
 
-          </div><img id="x-icon" alt="x" src="./images/x_circle_icon.png" />
-          <p id="favorited">Home</p>
-        </div>
-      </nav>
+    <section class="main-container">
+      <section id="top-half">
+        <nav>
+          <img id="top-menu" alt="hamburger-menu" src="./images/menu.png" />
+          <div id="dropdown-menu">
+            <div id="search-row">
+              <input type="text" id="searchbar" placeholder="Search city...">
+              <button id="searchButton"><img src="./images/search.png" alt="search" /></button>
 
-
-      <!--header with background img, with rounded lower edge, large current-temperature, and img that symbolizes weather-->
-
-      <header>
-        <div id="temp">
-          <h1 id="current-temperature">??</h1>
-          <h2 id="city">City</h2>
-          <h3 id="weather-condition">Type of weather</h3>
-        </div>
-        <div id="big-symbol">
-          <img src="./images/sun.png" id="mainIcon" alt="weather symbol" />
-        </div>
-
-        <div id="sun">
-          <table id="sunrise-sunset">
-            <tr>
-              <th id="sunrise">Sunrise</th>
-              <th id="sunrise-time">00:00</th>
-              <th id="sunset">Sunset</th>
-              <th id="sunset-time">00:00</th>
-            </tr>
-          </table>
-
-        </div>
-
-      </header>
+            </div><img id="x-icon" alt="x" src="./images/x_circle_icon.png" />
+            <p id="favorited">Home</p>
+          </div>
+        </nav>
 
 
+        <!--header with background img, with rounded lower edge, large current-temperature, and img that symbolizes weather-->
 
+        <header>
+          <div id="temp">
+            <h1 id="current-temperature">??</h1>
+            <h2 id="city">City</h2>
+            <h3 id="weather-condition">Type of weather</h3>
+          </div>
+          <div id="big-symbol">
+            <img src="./images/sun.png" id="mainIcon" alt="weather symbol" />
+          </div>
+
+          <div id="sun">
+            <table id="sunrise-sunset">
+              <tr>
+                <th id="sunrise">Sunrise</th>
+                <th id="sunrise-time">00:00</th>
+                <th id="sunset">Sunset</th>
+                <th id="sunset-time">00:00</th>
+              </tr>
+            </table>
+
+          </div>
+
+        </header>
+
+
+
+
+      </section>
+      <div id="button-container">
+        <button type="button" id="next-button"><img src="./images/arrow.png" alt="arrow"></button>
+      </div>
+
+
+      <section id="bottom-half">
+        <article id="weather-table">
+          <div class="row">
+            <div class="day">
+              Loading day...
+            </div>
+            <div class="icon">
+              <img id="icon-img" src="./images/sunny.png" alt="sunny">
+            </div>
+            <div class="temperature">
+              26°C / 11°C
+            </div>
+          </div>
+        </article>
+
+
+      </section>
 
     </section>
-    <div id="button-container">
-      <button type="button" id="next-button"><img src="./images/arrow.png" alt="arrow"></button>
-    </div>
-
-
-    <section id="bottom-half">
-      <article id="weather-table">
-        <div id="row">
-          <div id="day">
-            Loading day...
-          </div>
-          <div id="icon">
-            <img id="icon-img" src="./images/sunny.png" alt="sunny">
-          </div>
-          <div id="temperature">
-            26°C / 11°C
-          </div>
-        </div>
-      </article>
-
-
-    </section>
-
   </main>
 
 
