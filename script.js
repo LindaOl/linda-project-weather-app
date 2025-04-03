@@ -411,7 +411,7 @@ const runNewFetch = () => {
             `
 
                 sunsetTime.innerHTML = `
-            Sunset: ${convertedSetTime}
+            ${convertedSetTime}
             `;
 
             };
@@ -424,78 +424,6 @@ const runNewFetch = () => {
     //ending the function  
 };
 
-
-//searchbar eventListener
-//function to use input value to search for api
-const searchFunction = () => {
-    let words = searchbar.value.split(' ');
-    alert(words.length);
-
-    let searchValue = searchbar.value.trim();
-
-    //if no search words
-    if (!searchValue) {
-        alert('Please enter a city name');
-        return;
-
-        // no city found
-    } else if (searchValue === undefined || searchValue === null || searchValue === '') {
-        alert('Unable to find city. Check spelling and try again');
-        return;
-
-        // if one search word
-    } else if (words.length === 1) {
-
-        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-
-        //if two search words, so it's possible to search by city + country
-    } else if (words.length === 2) {
-
-        let country = words[1].toLowerCase();
-
-        //function to check for the country in an object of countries, to find country code
-        const getCountryCode = () => {
-            const countryKey = Object.keys(countryList).find((key) => key.toLowerCase() === country);
-            if (countryKey) {
-                return countryList[countryKey];
-            }
-            return null;
-        }
-        let countryValue = getCountryCode();
-
-
-        // comma in search
-        if (searchbar.value.includes(',')) {
-            currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}${countryValue}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-            forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}${countryValue}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-
-            // no comma in search
-        } else if (!searchbar.value.includes(',')) {
-            currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]},${countryValue}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-
-            forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]},${countryValue}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-
-        }
-
-    }
-
-    runNewFetch();
-    forecastFetch();
-}
-
-
-//forecast https://api.openweathermap.org/data/2.5/forecast?q=oslo&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b
-
-//https://api.openweathermap.org/data/2.5/forecast?q=${words[0]},${countryValue}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b
-
-// then insert [0], [1], [2], [3], [4]
 
 const forecastFetch = () => {
     console.log('current forecast Api is', forecastApi);
@@ -550,4 +478,46 @@ const forecastFetch = () => {
 
         })
         .catch((error) => console.error("Error fetching forecast:", error));
+}
+
+
+//searchbar eventListener
+//function to use input value to search for api
+const searchFunction = () => {
+    let words = searchbar.value.split(' ');
+
+    let searchValue = searchbar.value.trim();
+
+    //if no search words
+    if (!searchValue) {
+        alert('Please enter a city name');
+        return;
+
+        // no city found
+    } else if (searchValue === undefined || searchValue === null || searchValue === '') {
+        alert('Unable to find city. Check spelling and try again');
+        return;
+
+        // if one search word
+    } else if (words.length === 1) {
+
+        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
+
+        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
+
+
+        //if two search words, so it's possible to search by city + country
+    } else if (words.length === 2) {
+
+        //function to check for the country in an object of countries, to find country code
+
+        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
+
+        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
+    } else {
+        alert('Please try again');
+    }
+
+    runNewFetch();
+    forecastFetch();
 }
