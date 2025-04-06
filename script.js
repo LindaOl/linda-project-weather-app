@@ -281,6 +281,7 @@ const sunsetTime = document.getElementById('sunset-time');
 const weatherTable = document.getElementById('weather-table');
 const bottomHalf = document.getElementById('bottom-half');
 const weatherToday = document.getElementById('weather-today');
+const todaysContainer = document.getElementById('todays-weather');
 
 
 const topMenu = document.getElementById('top-menu');
@@ -576,7 +577,7 @@ const searchFunction = () => {
 // next button and content swap
 nextButton.addEventListener('click', () => {
     weatherTable.style.display = 'none';
-    weatherToday.style.display = 'flex';
+    todaysContainer.style.display = 'block';
 
     previousButton.style.visibility = 'visible';
     nextButton.style.visibility = 'hidden';
@@ -584,7 +585,7 @@ nextButton.addEventListener('click', () => {
 
 
 previousButton.addEventListener('click', () => {
-    weatherToday.style.display = 'none';
+    todaysContainer.style.display = 'none';
     weatherTable.style.display = 'flex';
 
     previousButton.style.visibility = 'hidden';
@@ -635,7 +636,7 @@ const fetchTodayHourlyForecast = () => {
                 });
             });
 
-            weatherToday.innerHTML += hourlyForecast.map(interval => `
+            weatherToday.innerHTML = hourlyForecast.map(interval => `
                 <div class="forecast-row">                    
                     <div class="day">${interval.time}</div>
                     <div class="icon">
