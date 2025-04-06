@@ -278,19 +278,20 @@ const city = document.getElementById('city');
 const weather = document.getElementById('weather-condition');
 const sunriseTime = document.getElementById('sunrise-time');
 const sunsetTime = document.getElementById('sunset-time');
-const tableContainer = document.getElementById('weather-table');
+const weatherTable = document.getElementById('weather-table');
+const bottomHalf = document.getElementById('bottom-half');
+const weatherToday = document.getElementById('weather-today');
 
 
 const topMenu = document.getElementById('top-menu');
 const dropdown = document.getElementById('dropdown-menu');
 const xIcon = document.getElementById('x-icon');
 
-
-
-
 const searchButton = document.getElementById('searchButton');
 const searchbar = document.getElementById('searchbar');
 
+const nextButton = document.getElementById('next-button');
+const previousButton = document.getElementById('previous-button');
 
 let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
@@ -358,13 +359,9 @@ const runNewFetch = () => {
         })
         .then((data) => {
 
-
             //if 404 error
             if (data.cod !== 200) {
                 alert('City not found. Please check the spelling and try again.');
-
-
-
 
             } else {
                 //deploy to upper half of app
@@ -373,57 +370,32 @@ const runNewFetch = () => {
                 currentTemperature.innerHTML = `
             ${temp}°C
             `
-
-
                 city.innerHTML = `
             ${data.name}
             `
                 const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
 
-
                 weather.innerHTML = `
         ${weatherType}
         `
-
-
-                //HERE
-
-
                 const weatherCode = data.weather.map(iconCode => iconCode.icon).join(', ');
-
-
-
-
-
 
                 const getNewIcon = () => {
                     const iconKey = Object.keys(swapIcons).find((key) => key.toLowerCase() === weatherCode.toLowerCase());
                     if (iconKey) {
-
-
                         return swapIcons[iconKey];
                     }
                     return null;
                 }
-
-
                 weatherIcon = getNewIcon();
-
-
-
 
                 if (weatherIcon) {
                     icon.innerHTML = `<img alt="icon" src="${weatherIcon}" />`;
                 } else {
-
-
                     const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
                     weather.innerHTML = `
-        ${weatherType}
-        `
+        ${weatherType}        `
                 }
-
-
 
 
                 //deploy to forecast table
@@ -438,38 +410,18 @@ const runNewFetch = () => {
                     return date.toLocaleTimeString('en-GB', options);
                 };
 
-
                 // getting the actual times in HH:MM format
                 const convertedRiseTime = convertTime(data.sys.sunrise);
                 const convertedSetTime = convertTime(data.sys.sunset);
 
-
-                sunriseTime.innerHTML = `
-            ${convertedRiseTime}
-            `
-
-
-                sunsetTime.innerHTML = `
-            ${convertedSetTime}
-            `;
-
-
+                sunriseTime.innerHTML = `${convertedRiseTime}`
+                sunsetTime.innerHTML = `${convertedSetTime}`;
             };
-
-
-
-
-
-
-
-
-            //end of fetch, next is closing tag
         });
-    //ending the function  
 };
 
 
-
+//forecast icon and day
 const forecastFetch = () => {
     console.log('current forecast Api is', forecastApi);
     fetch(forecastApi)
@@ -493,7 +445,6 @@ const forecastFetch = () => {
                 const date = new Date(item.dt * 1000);
                 const calendarDate = date.getDate(); // Day of the month
                 const hour = date.getHours(); // local time
-
                 const dayName = convertTimestampToDay(item.dt);
 
                 if (
@@ -508,8 +459,6 @@ const forecastFetch = () => {
                     const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
                     console.log('it is', originalWeatherIconCode, fallbackIcon);
 
-
-
                     fiveDayForecast.push({
                         day: dayName,
                         icon: forecastIcon
@@ -520,7 +469,7 @@ const forecastFetch = () => {
 
             console.log("Unique first five days:", fiveDayForecast);
 
-            tableContainer.innerHTML = fiveDayForecast.map(day => `
+            weatherTable.innerHTML = fiveDayForecast.map(day => `
                 <div class="row">
                     <div class="day">${day.day}</div>
                     <div class="icon">
@@ -542,7 +491,6 @@ const fetchForecastTemp = () => {
             return respons.json()
         })
         .then((data) => {
-
             const tempsByDay = {};
             const todayDate = new Date().getDate();
 
@@ -585,9 +533,7 @@ const fetchForecastTemp = () => {
 }
 
 
-
 //searchbar eventListener
-//function to use input value to search for api
 const searchFunction = () => {
     let words = searchbar.value.split(' ');
 
@@ -609,7 +555,7 @@ const searchFunction = () => {
         currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
         forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
 
-        //if two search words, so it's possible to search for cityes with double names
+        //if two search words, cities with double names
     } else if (words.length === 2) {
 
         currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
@@ -622,3 +568,81 @@ const searchFunction = () => {
     forecastFetch();
 
 }
+
+
+// next button and content swap
+nextButton.addEventListener('click', () => {
+    weatherTable.style.display = 'none';
+    weatherToday.style.display = 'flex';
+
+    previousButton.style.visibility = 'visible';
+    nextButton.style.visibility = 'hidden';
+});
+
+
+previousButton.addEventListener('click', () => {
+    weatherToday.style.display = 'none';
+    weatherTable.style.display = 'flex';
+
+    previousButton.style.visibility = 'hidden';
+    nextButton.style.visibility = 'visible';
+});
+
+
+
+// fetch for current days weather in 3h intervals
+const fetchTodayHourlyForecast = () => {
+    console.log('Fetching hourly forecast...', forecastApi);
+    fetch(forecastApi)
+        .then((res) => res.json())
+        .then((data) => {
+            const now = new Date();
+            const todayYear = now.getFullYear();
+            const todayMonth = now.getMonth();
+            const todayDate = now.getDate();
+
+            const hourlyForecast = [];
+
+            const todayForecasts = data.list.filter(item => {
+                const forecastDate = new Date(item.dt * 1000);
+                return (
+                    forecastDate.getFullYear() === todayYear &&
+                    forecastDate.getMonth() === todayMonth &&
+                    forecastDate.getDate() === todayDate
+                );
+            });
+
+
+            console.log("Today's hourly forecast:");
+
+            todayForecasts.forEach(item => {
+                const time = new Date(item.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const temp = item.main.temp;
+                const description = item.weather[0].description;
+                const originalIcon = item.weather[0].icon;
+                const fallbackIcon = `https://openweathermap.org/img/wn/${originalIcon}@2x.png`;
+                const forecastIcon = swapIcons[originalIcon] || fallbackIcon;
+
+                console.log(`${time} — ${temp}°C — ${description} — ${originalIcon}`);
+
+                hourlyForecast.push({
+                    time,
+                    icon: forecastIcon,
+                    temp
+                });
+            });
+
+            weatherToday.innerHTML += hourlyForecast.map(interval => `
+                <div class="forecast-row">                    
+                    <div class="day">${interval.time}</div>
+                    <div class="icon">
+                        <img id="icon-img" src="${interval.icon}">
+                    </div>
+                    <div class="temperature">${Math.round(interval.temp)}°C</div>
+                </div>
+            `).join('');
+        })
+        .catch((err) => console.error('Error fetching hourly forecast:', err));
+};
+
+fetchTodayHourlyForecast();

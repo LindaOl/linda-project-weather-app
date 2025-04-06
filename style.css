@@ -256,8 +256,8 @@ h3 {
 
 #button-container {
   display: flex;
-  justify-content: flex-end;
-  padding-right: 20px;
+  justify-content: space-between;
+  padding: 0 20px;
 }
 
 button {
@@ -267,13 +267,25 @@ button {
   filter: drop-shadow(0 3px 3px #777777);
   z-index: 30;
   margin-top: -6vh;
-  padding: 5px 10px;
+  height: 67px;
+  width: 67px;
+  justify-content: center;
+}
 
+#next-button {
+  visibility: visible;
+  padding-left: 5px;
+}
+
+#previous-button {
+  visibility: hidden;
+  padding-right: 5px;
 }
 
 button img {
   filter: invert(1);
-
+  width: 64px;
+  aspect-ratio: 1 / 1;
 }
 
 #bottom-half {
@@ -283,6 +295,8 @@ button img {
 }
 
 #weather-table {
+  display: flex;
+  flex-direction: column;
   margin: 0;
   width: 100%;
   height: auto;
@@ -290,14 +304,11 @@ button img {
   padding: 15px;
 }
 
-
-
 .row {
-  height: 18%;
+  height: 15%;
   display: flex;
-  flex-grow: 1;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-self: center;
   white-space: nowrap;
   width: 100%;
@@ -311,6 +322,35 @@ button img {
 }
 
 
+#weather-today {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0;
+  width: 100%;
+  height: auto;
+  gap: 10px;
+  padding: 15px;
+}
+
+.forecast-row {
+  display: flex;
+  flex-direction: row;
+
+  align-self: flex-start;
+  justify-self: center;
+  white-space: nowrap;
+  width: 100%;
+  height: auto;
+  border-radius: 25px;
+  overflow: hidden;
+  background-color: var(--table-background);
+}
+
+p {
+  font-size: clamp(0.7rem, 5vw, 1.5rem);
+  padding-bottom: 15px;
+}
 
 .day {
   width: 50%;
@@ -319,8 +359,6 @@ button img {
   border: var(--borders-table);
   line-height: 3;
   align-items: center;
-
-
   padding-left: 20px;
 }
 
@@ -332,7 +370,6 @@ button img {
 
 .icon {
   width: 20%;
-  height: 100%;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -343,7 +380,6 @@ button img {
 .temperature {
   width: 30%;
   line-height: 3;
-
   display: inline-flex;
   justify-content: end;
   align-items: center;
@@ -398,7 +434,8 @@ button img {
     justify-content: center;
   }
 
-  #weather-table {
+  #weather-table,
+  #weather-today {
     width: 50%;
   }
 }
@@ -492,10 +529,13 @@ button img {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
   }
 
-
+  #weather-today {
+    width: 40%;
+    display: none;
+    justify-content: center;
+  }
 
   .row {
     display: flex;
