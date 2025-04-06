@@ -248,6 +248,7 @@ const countryList = {
     Češka: 'CZ'
 }
 
+
 const swapIcons = {
     '01d': './images/sunny.png',
     '02d': './images/sun-clouds.png',
@@ -269,6 +270,7 @@ const swapIcons = {
     '50n': './images/mist.png'
 }
 
+
 const icon = document.getElementById('big-symbol');
 const smallIcon = document.getElementById('icon');
 const currentTemperature = document.getElementById('current-temperature');
@@ -278,16 +280,22 @@ const sunriseTime = document.getElementById('sunrise-time');
 const sunsetTime = document.getElementById('sunset-time');
 const tableContainer = document.getElementById('weather-table');
 
+
 const topMenu = document.getElementById('top-menu');
 const dropdown = document.getElementById('dropdown-menu');
 const xIcon = document.getElementById('x-icon');
 
 
+
+
 const searchButton = document.getElementById('searchButton');
 const searchbar = document.getElementById('searchbar');
 
+
 let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
+
+
 
 
 let searchValue = "";
@@ -296,13 +304,18 @@ let weatherIcon = "";
 
 
 
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     runNewFetch();
     forecastFetch();
 });
 
+
 // dropdown-menu
 topMenu.addEventListener('click', () => {
+
 
     if (dropdown.style.display === 'block') {
         dropdown.style.display = 'none';
@@ -311,6 +324,7 @@ topMenu.addEventListener('click', () => {
     }
 });
 
+
 if (xIcon) {
     xIcon.addEventListener('click', () => {
         dropdown.style.display = 'none';
@@ -318,10 +332,13 @@ if (xIcon) {
 };
 
 
+
+
 searchButton.addEventListener('click', () => {
     searchFunction();
     dropdown.style.display = 'none';
 });
+
 
 searchbar.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === 'Search' || event.keyCode === 13) {
@@ -329,6 +346,8 @@ searchbar.addEventListener('keydown', (event) => {
         searchFunction();
     };
 });
+
+
 
 
 //fetching and deploying the information gotten to the app
@@ -339,9 +358,12 @@ const runNewFetch = () => {
         })
         .then((data) => {
 
+
             //if 404 error
             if (data.cod !== 200) {
                 alert('City not found. Please check the spelling and try again.');
+
+
 
 
             } else {
@@ -352,18 +374,25 @@ const runNewFetch = () => {
             ${temp}°C
             `
 
+
                 city.innerHTML = `
             ${data.name}
             `
                 const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
 
+
                 weather.innerHTML = `
         ${weatherType}
         `
 
+
                 //HERE
 
+
                 const weatherCode = data.weather.map(iconCode => iconCode.icon).join(', ');
+
+
+
 
 
 
@@ -371,23 +400,30 @@ const runNewFetch = () => {
                     const iconKey = Object.keys(swapIcons).find((key) => key.toLowerCase() === weatherCode.toLowerCase());
                     if (iconKey) {
 
+
                         return swapIcons[iconKey];
                     }
                     return null;
                 }
 
+
                 weatherIcon = getNewIcon();
+
+
 
 
                 if (weatherIcon) {
                     icon.innerHTML = `<img alt="icon" src="${weatherIcon}" />`;
                 } else {
 
+
                     const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
                     weather.innerHTML = `
         ${weatherType}
         `
                 }
+
+
 
 
                 //deploy to forecast table
@@ -402,19 +438,27 @@ const runNewFetch = () => {
                     return date.toLocaleTimeString('en-GB', options);
                 };
 
+
                 // getting the actual times in HH:MM format
                 const convertedRiseTime = convertTime(data.sys.sunrise);
                 const convertedSetTime = convertTime(data.sys.sunset);
+
 
                 sunriseTime.innerHTML = `
             ${convertedRiseTime}
             `
 
+
                 sunsetTime.innerHTML = `
             ${convertedSetTime}
             `;
 
+
             };
+
+
+
+
 
 
 
@@ -423,6 +467,7 @@ const runNewFetch = () => {
         });
     //ending the function  
 };
+
 
 
 const forecastFetch = () => {
@@ -438,30 +483,39 @@ const forecastFetch = () => {
                 return days[date.getDay()];
             };
 
+            const todayDate = new Date().getDate();
             const eachNewDay = new Set();
             const fiveDayForecast = [];
 
-            for (const item of data.list) {
+            //create converted time for each day
+            for (let i = 0; i < data.list.length; i++) {
+                const item = data.list[i];
+                const date = new Date(item.dt * 1000);
+                const calendarDate = date.getDate(); // Day of the month
+                const hour = date.getHours(); // local time
+
                 const dayName = convertTimestampToDay(item.dt);
-                console.log("what are these?", dayName);
-                console.log("will this work?", item.main.temp);
 
-                if (!eachNewDay.has(dayName)) {
-                    eachNewDay.add(dayName);
-                    const forecastWeatherCode = item.weather[0].icon;
-
+                if (
+                    calendarDate !== todayDate &&
+                    !eachNewDay.has(calendarDate) &&
+                    hour >= 11 && hour <= 13
+                ) {
+                    eachNewDay.add(calendarDate);
                     // Find the correct image from swapIcons
-                    const forecastIcon = swapIcons[forecastWeatherCode] || './images/default.png'; // Fallback if not found
+                    const originalWeatherIconCode = item.weather[0].icon;
+                    const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
+                    const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
+                    console.log('it is', originalWeatherIconCode, fallbackIcon);
+
+
 
                     fiveDayForecast.push({
                         day: dayName,
-                        tempMax: Math.round(item.main.temp_max),
-                        tempMin: Math.round(item.main.temp_min),
                         icon: forecastIcon
                     });
                 }
-                if (fiveDayForecast.length === 5) break; // Stop once we have 5 unique days
-
+                if (fiveDayForecast.length === 4) break; // Stop once we have 5 unique days
             }
 
             console.log("Unique first five days:", fiveDayForecast);
@@ -472,13 +526,64 @@ const forecastFetch = () => {
                     <div class="icon">
                         <img class="icon-img" src="${day.icon}" />
                     </div>
-                    <div class="temperature">${day.tempMax}°C / ${day.tempMin}°C</div>
                 </div>
             `).join(''); // Joins all rows together
 
+            fetchForecastTemp();
         })
         .catch((error) => console.error("Error fetching forecast:", error));
 }
+
+
+const fetchForecastTemp = () => {
+    console.log('current forecast Api is', forecastApi);
+    fetch(forecastApi)
+        .then((respons) => {
+            return respons.json()
+        })
+        .then((data) => {
+
+            const tempsByDay = {};
+            const todayDate = new Date().getDate();
+
+            data.list.forEach(item => {
+                const date = new Date(item.dt * 1000);
+                const dayKey = date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                const calendarDate = date.getDate();
+
+                // Skip today
+                if (calendarDate === todayDate) return;
+
+                // If not seen before, initialize
+                if (!tempsByDay[dayKey]) {
+                    tempsByDay[dayKey] = {
+                        min: item.main.temp_min,
+                        max: item.main.temp_max
+                    };
+                } else {
+                    tempsByDay[dayKey].min = Math.min(tempsByDay[dayKey].min, item.main.temp_min);
+                    tempsByDay[dayKey].max = Math.max(tempsByDay[dayKey].max, item.main.temp_max);
+                }
+            });
+
+            console.log("Temps by day:", tempsByDay);
+            const fiveDayTemps = Object.entries(tempsByDay).slice(0, 5);
+            const tempRows = document.querySelectorAll('.row');
+
+            fiveDayTemps.forEach(([date, temps], index) => {
+                if (tempRows[index]) {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.className = 'temperature';
+                    tempDiv.innerText = `${Math.round(temps.max)}°C / ${Math.round(temps.min)}°C`;
+                    tempRows[index].appendChild(tempDiv);
+                }
+            });
+
+        })
+
+        .catch((error) => console.error("Error fetching forecast:", error));
+}
+
 
 
 //searchbar eventListener
@@ -501,23 +606,19 @@ const searchFunction = () => {
         // if one search word
     } else if (words.length === 1) {
 
-        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
+        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
 
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-
-        //if two search words, so it's possible to search by city + country
+        //if two search words, so it's possible to search for cityes with double names
     } else if (words.length === 2) {
 
-        //function to check for the country in an object of countries, to find country code
+        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
 
-        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b`;
+        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
     } else {
         alert('Please try again');
     }
-
     runNewFetch();
     forecastFetch();
+
 }

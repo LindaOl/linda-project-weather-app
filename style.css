@@ -372,29 +372,35 @@ button img {
   }
 
   h1 {
-    font-size: clamp(1.5rem, 3vw, 4rem);
+    font-size: clamp(1.5rem, 7vw, 5rem);
     line-height: 1.1;
   }
 
   h2 {
-    font-size: clamp(1.1rem, 2vw, 1.8rem);
+    font-size: clamp(1.1rem, 4vw, 2.5rem);
   }
 
   h3 {
-    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    font-size: clamp(1rem, 3vw, 2rem);
   }
 
   #sunrise-sunset th {
-    font-size: clamp(1.1rem, 2vw, 1.8rem);
+    font-size: clamp(1.1rem, 2.5vw, 1.8rem);
   }
 
   #big-symbol img {
-    width: 40%;
-    max-width: 100px;
+    width: 60%;
+    max-width: 200px;
     height: auto;
   }
 
+  #bottom-half {
+    justify-content: center;
+  }
 
+  #weather-table {
+    width: 50%;
+  }
 }
 
 
@@ -429,6 +435,9 @@ button img {
     margin: 0;
     padding: 0;
   }
+
+
+
 }
 
 
@@ -442,7 +451,9 @@ button img {
     margin: 0;
   }
 
-  #dropdown-menu {}
+  #dropdown-menu {
+    top: 15%;
+  }
 
   #search-row,
   #sunrise-sunset,
@@ -457,64 +468,69 @@ button img {
 /*Media query for desktop, at least 1024px*/
 @media screen and (min-width: 1024px) {
 
-  main {
-    background-color: rgb(240, 240, 240);
-  }
-
-  .main-container {
-    margin: 0 20%;
-    background-color: white;
-    width: 100vw;
-    filter: var(--shadow);
-  }
-
-  #top-half,
-  #bottom-half,
-  #button-container {}
-
   header {
-    grid-template-rows: 60% 40%;
+    width: 40%;
   }
 
-  #temp,
-  #big-symbol {}
-
-
-  #big-symbol img {
-    width: auto;
-    height: 70%;
-
+  #temp {
+    justify-content: start;
+    align-items: end;
   }
 
-  #sun {
+  #big-symbol {
+    justify-content: start;
+  }
+
+  #bottom-half {
+    height: 40vh;
+    width: 100%;
     justify-content: center;
-    height: 30%;
   }
 
-  #sunrise-sunset {
-    padding: 0;
-    padding-bottom: 0;
-
+  #weather-table {
+    width: 60%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 
 
 
   .row {
-    width: 60%;
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    height: 100%;
+    justify-content: start;
+    align-items: center;
+    margin: 10px;
+    border: 1px solid var(--table-hover-background);
+    padding: 15px;
   }
 
   .day {
-    width: 40%;
+    font-size: clamp(1rem, 3vw, 2rem);
+    line-height: 1.1;
+    padding-top: 10px;
+    justify-content: center;
+    padding: 0;
   }
 
   .icon {
-    width: 20%;
+    height: 20vh;
+    width: auto;
   }
 
-  .temperature {}
+  .icon img {
+    width: 80%;
+  }
 
-  .day,
   .temperature {
-    font-size: 2vw;
+    font-size: clamp(1rem, 2vw, 2rem);
+    line-height: 1.1;
+    width: 100%;
+    justify-content: center;
+    padding-bottom: 10px;
   }
 }
