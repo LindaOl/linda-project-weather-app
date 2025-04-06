@@ -311,6 +311,7 @@ let weatherIcon = "";
 document.addEventListener('DOMContentLoaded', () => {
     runNewFetch();
     forecastFetch();
+    fetchTodayHourlyForecast();
 });
 
 
@@ -353,6 +354,7 @@ searchbar.addEventListener('keydown', (event) => {
 
 //fetching and deploying the information gotten to the app
 const runNewFetch = () => {
+    console.log('todays weather API', currentWeatherApi);
     fetch(currentWeatherApi)
         .then((respons) => {
             return respons.json()
@@ -485,7 +487,7 @@ const forecastFetch = () => {
 
 
 const fetchForecastTemp = () => {
-    console.log('current forecast Api is', forecastApi);
+    console.log('current forecast temp Api is', forecastApi);
     fetch(forecastApi)
         .then((respons) => {
             return respons.json()
@@ -566,6 +568,7 @@ const searchFunction = () => {
     }
     runNewFetch();
     forecastFetch();
+    fetchTodayHourlyForecast();
 
 }
 
