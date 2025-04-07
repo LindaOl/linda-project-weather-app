@@ -116,7 +116,6 @@ favoriteIcon.addEventListener('click', () => {
     } else {
         localStorage.setItem('favoriteApi', currentWeatherApi);
     }
-
     updateFavoriteImage(!isFavorite);
 });
 
@@ -157,7 +156,6 @@ const arrowButtons = () => {
         nextButton.style.visibility = 'visible';
     });
 }
-
 
 
 //fetching and deploying the information gotten to the app
@@ -330,9 +328,7 @@ const fetchForecastTemp = () => {
                     tempRows[index].appendChild(tempDiv);
                 }
             });
-
         })
-
         .catch((error) => console.error("Error fetching forecast:", error));
 }
 
@@ -360,8 +356,6 @@ const searchFunction = () => {
         currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
 
         forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-        //update favorite mark
-
 
     } else {
         alert('Please try again');
@@ -370,7 +364,6 @@ const searchFunction = () => {
     forecastFetch();
     fetchTodayHourlyForecast();
     refreshFavoriteIcon();
-
 }
 
 
@@ -434,7 +427,7 @@ const changeBackground = () => {
     const hour = new Date().getHours();
     let timeOfDay;
 
-    if (hour >= 5 && hour < 19) {
+    if (hour >= 5 && hour < 19.5) {
         timeOfDay = 'daytime';
     } else {
         timeOfDay = 'night';
