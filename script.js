@@ -1,254 +1,3 @@
-const countryList = {
-    Afghanistan: 'AF',
-    'Aland Islands': 'AX',
-    Albania: 'AL',
-    Algeria: 'DZ',
-    'American Samoa': 'AS',
-    Andorra: 'AD',
-    Angola: 'AO',
-    Anguilla: 'AI',
-    Antarctica: 'AQ',
-    'Antigua And Barbuda': 'AG',
-    Argentina: 'AR',
-    Armenia: 'AM',
-    Aruba: 'AW',
-    Australia: 'AU',
-    Austria: 'AT',
-    Azerbaijan: 'AZ',
-    Bahamas: 'BS',
-    Bahrain: 'BH',
-    Bangladesh: 'BD',
-    Barbados: 'BB',
-    Belarus: 'BY',
-    Belgium: 'BE',
-    Belize: 'BZ',
-    Benin: 'BJ',
-    Bermuda: 'BM',
-    Bhutan: 'BT',
-    Bolivia: 'BO',
-    'Bosnia And Herzegovina': 'BA',
-    Botswana: 'BW',
-    'Bouvet Island': 'BV',
-    Brazil: 'BR',
-    'British Indian Ocean Territory': 'IO',
-    'Brunei Darussalam': 'BN',
-    Bulgaria: 'BG',
-    'Burkina Faso': 'BF',
-    Burundi: 'BI',
-    Cambodia: 'KH',
-    Cameroon: 'CM',
-    Canada: 'CA',
-    'Cape Verde': 'CV',
-    'Cayman Islands': 'KY',
-    'Central African Republic': 'CF',
-    Chad: 'TD',
-    Chile: 'CL',
-    China: 'CN',
-    'Christmas Island': 'CX',
-    'Cocos (Keeling) Islands': 'CC',
-    Colombia: 'CO',
-    Comoros: 'KM',
-    Congo: 'CG',
-    'Congo, Democratic Republic': 'CD',
-    'Cook Islands': 'CK',
-    'Costa Rica': 'CR',
-    "Cote D'Ivoire": 'CI',
-    Croatia: 'HR',
-    Cuba: 'CU',
-    Cyprus: 'CY',
-    'Czech Republic': 'CZ',
-    Denmark: 'DK',
-    Djibouti: 'DJ',
-    Dominica: 'DM',
-    'Dominican Republic': 'DO',
-    Ecuador: 'EC',
-    Egypt: 'EG',
-    'El Salvador': 'SV',
-    'Equatorial Guinea': 'GQ',
-    Eritrea: 'ER',
-    Estonia: 'EE',
-    Ethiopia: 'ET',
-    'Falkland Islands (Malvinas)': 'FK',
-    'Faroe Islands': 'FO',
-    Fiji: 'FJ',
-    Finland: 'FI',
-    France: 'FR',
-    'French Guiana': 'GF',
-    'French Polynesia': 'PF',
-    'French Southern Territories': 'TF',
-    Gabon: 'GA',
-    Gambia: 'GM',
-    Georgia: 'GE',
-    Germany: 'DE',
-    Ghana: 'GH',
-    Gibraltar: 'GI',
-    Greece: 'GR',
-    Greenland: 'GL',
-    Grenada: 'GD',
-    Guadeloupe: 'GP',
-    Guam: 'GU',
-    Guatemala: 'GT',
-    Guernsey: 'GG',
-    Guinea: 'GN',
-    'Guinea-Bissau': 'GW',
-    Guyana: 'GY',
-    Haiti: 'HT',
-    'Heard Island & Mcdonald Islands': 'HM',
-    'Holy See (Vatican City State)': 'VA',
-    Honduras: 'HN',
-    'Hong Kong': 'HK',
-    Hungary: 'HU',
-    Iceland: 'IS',
-    India: 'IN',
-    Indonesia: 'ID',
-    'Iran, Islamic Republic Of': 'IR',
-    Iraq: 'IQ',
-    Ireland: 'IE',
-    'Isle Of Man': 'IM',
-    Israel: 'IL',
-    Italy: 'IT',
-    Jamaica: 'JM',
-    Japan: 'JP',
-    Jersey: 'JE',
-    Jordan: 'JO',
-    Kazakhstan: 'KZ',
-    Kenya: 'KE',
-    Kiribati: 'KI',
-    Korea: 'KR',
-    Kuwait: 'KW',
-    Kyrgyzstan: 'KG',
-    "Lao People's Democratic Republic": 'LA',
-    Latvia: 'LV',
-    Lebanon: 'LB',
-    Lesotho: 'LS',
-    Liberia: 'LR',
-    'Libyan Arab Jamahiriya': 'LY',
-    Liechtenstein: 'LI',
-    Lithuania: 'LT',
-    Luxembourg: 'LU',
-    Macao: 'MO',
-    Macedonia: 'MK',
-    Madagascar: 'MG',
-    Malawi: 'MW',
-    Malaysia: 'MY',
-    Maldives: 'MV',
-    Mali: 'ML',
-    Malta: 'MT',
-    'Marshall Islands': 'MH',
-    Martinique: 'MQ',
-    Mauritania: 'MR',
-    Mauritius: 'MU',
-    Mayotte: 'YT',
-    Mexico: 'MX',
-    'Micronesia, Federated States Of': 'FM',
-    Moldova: 'MD',
-    Monaco: 'MC',
-    Mongolia: 'MN',
-    Montenegro: 'ME',
-    Montserrat: 'MS',
-    Morocco: 'MA',
-    Mozambique: 'MZ',
-    Myanmar: 'MM',
-    Namibia: 'NA',
-    Nauru: 'NR',
-    Nepal: 'NP',
-    Netherlands: 'NL',
-    'Netherlands Antilles': 'AN',
-    'New Caledonia': 'NC',
-    'New Zealand': 'NZ',
-    Nicaragua: 'NI',
-    Niger: 'NE',
-    Nigeria: 'NG',
-    Niue: 'NU',
-    'Norfolk Island': 'NF',
-    'Northern Mariana Islands': 'MP',
-    Norway: 'NO',
-    Oman: 'OM',
-    Pakistan: 'PK',
-    Palau: 'PW',
-    'Palestinian Territory, Occupied': 'PS',
-    Panama: 'PA',
-    'Papua New Guinea': 'PG',
-    Paraguay: 'PY',
-    Peru: 'PE',
-    Philippines: 'PH',
-    Pitcairn: 'PN',
-    Poland: 'PL',
-    Portugal: 'PT',
-    'Puerto Rico': 'PR',
-    Qatar: 'QA',
-    Reunion: 'RE',
-    Romania: 'RO',
-    'Russian Federation': 'RU',
-    Rwanda: 'RW',
-    'Saint Barthelemy': 'BL',
-    'Saint Helena': 'SH',
-    'Saint Kitts And Nevis': 'KN',
-    'Saint Lucia': 'LC',
-    'Saint Martin': 'MF',
-    'Saint Pierre And Miquelon': 'PM',
-    'Saint Vincent And Grenadines': 'VC',
-    Samoa: 'WS',
-    'San Marino': 'SM',
-    'Sao Tome And Principe': 'ST',
-    'Saudi Arabia': 'SA',
-    Senegal: 'SN',
-    Serbia: 'RS',
-    Seychelles: 'SC',
-    'Sierra Leone': 'SL',
-    Singapore: 'SG',
-    Slovakia: 'SK',
-    Slovenia: 'SI',
-    'Solomon Islands': 'SB',
-    Somalia: 'SO',
-    'South Africa': 'ZA',
-    'South Georgia And Sandwich Isl.': 'GS',
-    Spain: 'ES',
-    'Sri Lanka': 'LK',
-    Sudan: 'SD',
-    Suriname: 'SR',
-    'Svalbard And Jan Mayen': 'SJ',
-    Swaziland: 'SZ',
-    Sweden: 'SE',
-    Switzerland: 'CH',
-    'Syrian Arab Republic': 'SY',
-    Taiwan: 'TW',
-    Tajikistan: 'TJ',
-    Tanzania: 'TZ',
-    Thailand: 'TH',
-    'Timor-Leste': 'TL',
-    Togo: 'TG',
-    Tokelau: 'TK',
-    Tonga: 'TO',
-    'Trinidad And Tobago': 'TT',
-    Tunisia: 'TN',
-    Turkey: 'TR',
-    Turkmenistan: 'TM',
-    'Turks And Caicos Islands': 'TC',
-    Tuvalu: 'TV',
-    Uganda: 'UG',
-    Ukraine: 'UA',
-    'United Arab Emirates': 'AE',
-    'United Kingdom': 'GB',
-    'United States': 'US',
-    'United States Outlying Islands': 'UM',
-    Uruguay: 'UY',
-    Uzbekistan: 'UZ',
-    Vanuatu: 'VU',
-    Venezuela: 'VE',
-    'Viet Nam': 'VN',
-    'Virgin Islands, British': 'VG',
-    'Virgin Islands, U.S.': 'VI',
-    'Wallis And Futuna': 'WF',
-    'Western Sahara': 'EH',
-    Yemen: 'YE',
-    Zambia: 'ZM',
-    Zimbabwe: 'ZW',
-    'North Macedonia': 'MK',
-    Češka: 'CZ'
-}
-
-
 const swapIcons = {
     '01d': './images/sunny.png',
     '02d': './images/sun-clouds.png',
@@ -298,34 +47,41 @@ let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=helsi
 let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 
 
-
-
 let searchValue = "";
 let getFetchLink = "";
 let weatherIcon = "";
-
-
-
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
     runNewFetch();
     forecastFetch();
     fetchTodayHourlyForecast();
+    loadDocumentCloseListener();
+    toggleDropdown();
+    searching();
+    arrowButtons();
+    changeBackground();
 });
 
 
 // dropdown-menu
-topMenu.addEventListener('click', () => {
+const toggleDropdown = () => {
+    topMenu.addEventListener('click', () => {
+        if (dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+        } else {
+            dropdown.style.display = 'block';
+        }
+    });
+}
 
-
-    if (dropdown.style.display === 'block') {
-        dropdown.style.display = 'none';
-    } else {
-        dropdown.style.display = 'block';
-    }
-});
+const loadDocumentCloseListener = () => {
+    document.addEventListener('click', e => {
+        if (!dropdown.contains(e.target) && e.target !== topMenu) {
+            dropdown.style.display = "none";
+        };
+    });
+};
 
 
 if (xIcon) {
@@ -334,22 +90,39 @@ if (xIcon) {
     })
 };
 
-
-
-
-searchButton.addEventListener('click', () => {
-    searchFunction();
-    dropdown.style.display = 'none';
-});
-
-
-searchbar.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === 'Search' || event.keyCode === 13) {
-        dropdown.style.display = 'none';
+const searching = () => {
+    searchButton.addEventListener('click', () => {
         searchFunction();
-    };
-});
+        dropdown.style.display = 'none';
+    });
 
+    searchbar.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === 'Search' || event.keyCode === 13) {
+            searchFunction();
+            dropdown.style.display = 'none';
+        };
+    });
+};
+
+
+const arrowButtons = () => {
+    // next button and content swap
+    nextButton.addEventListener('click', () => {
+        weatherTable.style.display = 'none';
+        todaysContainer.style.display = 'block';
+
+        previousButton.style.visibility = 'visible';
+        nextButton.style.visibility = 'hidden';
+    });
+
+    previousButton.addEventListener('click', () => {
+        todaysContainer.style.display = 'none';
+        weatherTable.style.display = 'flex';
+
+        previousButton.style.visibility = 'hidden';
+        nextButton.style.visibility = 'visible';
+    });
+}
 
 
 
@@ -370,17 +143,13 @@ const runNewFetch = () => {
                 //deploy to upper half of app
                 const tempWithComma = data.main.temp;
                 const temp = Math.round(tempWithComma);
-                currentTemperature.innerHTML = `
-            ${temp}°C
-            `
-                city.innerHTML = `
-            ${data.name}
-            `
-                const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
+                currentTemperature.innerHTML = `${temp}°C`
 
-                weather.innerHTML = `
-        ${weatherType}
-        `
+                city.innerHTML = `${data.name}`
+
+                const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
+                weather.innerHTML = `${weatherType}`
+
                 const weatherCode = data.weather.map(iconCode => iconCode.icon).join(', ');
 
                 const getNewIcon = () => {
@@ -390,16 +159,15 @@ const runNewFetch = () => {
                     }
                     return null;
                 }
+
                 weatherIcon = getNewIcon();
 
                 if (weatherIcon) {
                     icon.innerHTML = `<img alt="icon" src="${weatherIcon}" />`;
                 } else {
                     const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
-                    weather.innerHTML = `
-        ${weatherType}        `
+                    weather.innerHTML = `${weatherType}`
                 }
-
 
                 //deploy to forecast table
                 //converting to HH:MM, and logging the time  
@@ -440,9 +208,9 @@ const forecastFetch = () => {
 
             const todayDate = new Date().getDate();
             const eachNewDay = new Set();
-            const fiveDayForecast = [];
+            const fourDayForecast = [];
 
-            //create converted time for each day
+            //create converted time for each day and get an icon to insert onto web site
             for (let i = 0; i < data.list.length; i++) {
                 const item = data.list[i];
                 const date = new Date(item.dt * 1000);
@@ -456,23 +224,23 @@ const forecastFetch = () => {
                     hour >= 11 && hour <= 13
                 ) {
                     eachNewDay.add(calendarDate);
-                    // Find the correct image from swapIcons
+                    // Find the correct image from swapIcons array
                     const originalWeatherIconCode = item.weather[0].icon;
                     const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
                     const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
                     console.log('it is', originalWeatherIconCode, fallbackIcon);
 
-                    fiveDayForecast.push({
+                    fourDayForecast.push({
                         day: dayName,
                         icon: forecastIcon
                     });
                 }
-                if (fiveDayForecast.length === 4) break; // Stop once we have 5 unique days
+                if (fourDayForecast.length === 4) break; // Stop once we have 4 unique days
             }
 
-            console.log("Unique first five days:", fiveDayForecast);
+            console.log("Unique first four days:", fourDayForecast);
 
-            weatherTable.innerHTML = fiveDayForecast.map(day => `
+            weatherTable.innerHTML = fourDayForecast.map(day => `
                 <div class="row">
                     <div class="day">${day.day}</div>
                     <div class="icon">
@@ -499,7 +267,7 @@ const fetchForecastTemp = () => {
 
             data.list.forEach(item => {
                 const date = new Date(item.dt * 1000);
-                const dayKey = date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                const dayKey = date.toISOString().split('T')[0]; // make YYYY-MM-DD
                 const calendarDate = date.getDate();
 
                 // Skip today
@@ -518,10 +286,10 @@ const fetchForecastTemp = () => {
             });
 
             console.log("Temps by day:", tempsByDay);
-            const fiveDayTemps = Object.entries(tempsByDay).slice(0, 5);
+            const fourDayTemps = Object.entries(tempsByDay).slice(0, 4);
             const tempRows = document.querySelectorAll('.row');
 
-            fiveDayTemps.forEach(([date, temps], index) => {
+            fourDayTemps.forEach(([date, temps], index) => {
                 if (tempRows[index]) {
                     const tempDiv = document.createElement('div');
                     tempDiv.className = 'temperature';
@@ -572,26 +340,6 @@ const searchFunction = () => {
     fetchTodayHourlyForecast();
 
 }
-
-
-// next button and content swap
-nextButton.addEventListener('click', () => {
-    weatherTable.style.display = 'none';
-    todaysContainer.style.display = 'block';
-
-    previousButton.style.visibility = 'visible';
-    nextButton.style.visibility = 'hidden';
-});
-
-
-previousButton.addEventListener('click', () => {
-    todaysContainer.style.display = 'none';
-    weatherTable.style.display = 'flex';
-
-    previousButton.style.visibility = 'hidden';
-    nextButton.style.visibility = 'visible';
-});
-
 
 
 // fetch for current days weather in 3h intervals
@@ -649,4 +397,15 @@ const fetchTodayHourlyForecast = () => {
         .catch((err) => console.error('Error fetching hourly forecast:', err));
 };
 
-fetchTodayHourlyForecast();
+//change background, day/night
+const changeBackground = () => {
+    const hour = new Date().getHours();
+    let timeOfDay;
+
+    if (hour >= 5 && hour < 19) {
+        timeOfDay = 'daytime';
+    } else {
+        timeOfDay = 'night';
+    }
+    document.getElementById('top-half').className = timeOfDay;
+};
