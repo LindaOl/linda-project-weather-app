@@ -44,6 +44,9 @@ const searchbar = document.getElementById('searchbar');
 const nextButton = document.getElementById('next-button');
 const previousButton = document.getElementById('previous-button');
 
+let convertedRiseTime = "";
+let convertedSetTime = "";
+
 let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 
@@ -141,16 +144,16 @@ homeLink.addEventListener('click', () => {
 const arrowButtons = () => {
     // next button and content swap
     nextButton.addEventListener('click', () => {
-        weatherTable.style.display = 'none';
-        todaysContainer.style.display = 'block';
+        weatherTable.style.display = 'flex';
+        todaysContainer.style.display = 'none';
 
         previousButton.style.visibility = 'visible';
         nextButton.style.visibility = 'hidden';
     });
 
     previousButton.addEventListener('click', () => {
-        todaysContainer.style.display = 'none';
-        weatherTable.style.display = 'flex';
+        todaysContainer.style.display = 'block';
+        weatherTable.style.display = 'none';
 
         previousButton.style.visibility = 'hidden';
         nextButton.style.visibility = 'visible';
@@ -213,11 +216,12 @@ const runNewFetch = () => {
                 };
 
                 // getting the actual times in HH:MM format
-                const convertedRiseTime = convertTime(data.sys.sunrise);
-                const convertedSetTime = convertTime(data.sys.sunset);
+                convertedRiseTime = convertTime(data.sys.sunrise);
+                convertedSetTime = convertTime(data.sys.sunset);
 
                 sunriseTime.innerHTML = `${convertedRiseTime}`
                 sunsetTime.innerHTML = `${convertedSetTime}`;
+                changeBackground();
             };
         });
 };
@@ -424,15 +428,27 @@ const fetchTodayHourlyForecast = () => {
 
 //change background, day/night
 const changeBackground = () => {
-    const hour = new Date().getHours();
-    let timeOfDay;
-
-    if (hour >= 5 && hour < 19.5) {
-        timeOfDay = 'daytime';
-    } else {
-        timeOfDay = 'night';
+    if (!convertedRiseTime || !convertedSetTime) {
+        // fallback
+        const hour = new Date().getHours();
+        const timeOfDay = hour >= 6 && hour < 19.5 ? 'daytime' : 'night';
+        document.getElementById('top-half').className = timeOfDay;
+        return;
     }
-    document.getElementById('top-half').className = timeOfDay;
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    const [riseHour, riseMinute] = convertedRiseTime.split(':').map(Number);
+    const [setHour, setMinute] = convertedSetTime.split(':').map(Number);
+
+    const afterSunrise = currentHour > riseHour || (currentHour === riseHour && currentMinute >= riseMinute);
+    const beforeSunset = currentHour < setHour || (currentHour === setHour && currentMinute < setMinute);
+
+    const isDaytime = afterSunrise && beforeSunset;
+
+    document.getElementById('top-half').className = isDaytime ? 'daytime' : 'night';
 };
 
 const refreshFavoriteIcon = () => {
