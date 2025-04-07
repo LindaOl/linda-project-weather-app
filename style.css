@@ -122,6 +122,10 @@ nav img {
   margin-top: 5px;
 }
 
+#favorite-icon {
+  padding-left: 20px;
+}
+
 #top-menu {
   position: relative;
   z-index: 10;

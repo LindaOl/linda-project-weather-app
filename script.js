@@ -31,8 +31,9 @@ const weatherTable = document.getElementById('weather-table');
 const bottomHalf = document.getElementById('bottom-half');
 const weatherToday = document.getElementById('weather-today');
 const todaysContainer = document.getElementById('todays-weather');
+const homeLink = document.getElementById('favorited');
 
-
+const favoriteIcon = document.getElementById('favorite-icon');
 const topMenu = document.getElementById('top-menu');
 const dropdown = document.getElementById('dropdown-menu');
 const xIcon = document.getElementById('x-icon');
@@ -46,11 +47,14 @@ const previousButton = document.getElementById('previous-button');
 let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 
+const savedApi = localStorage.getItem('favoriteApi');
 
-let searchValue = "";
-let getFetchLink = "";
-let weatherIcon = "";
+if (savedApi) {
+    currentWeatherApi = savedApi;
 
+    const cityName = new URL(savedApi).searchParams.get("q");
+    forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     runNewFetch();
@@ -61,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     searching();
     arrowButtons();
     changeBackground();
+    updateFavoriteImage(savedApi === currentWeatherApi);
 });
 
 
@@ -84,11 +89,9 @@ const loadDocumentCloseListener = () => {
 };
 
 
-if (xIcon) {
-    xIcon.addEventListener('click', () => {
-        dropdown.style.display = 'none';
-    })
-};
+xIcon.addEventListener('click', () => {
+    dropdown.style.display = 'none';
+})
 
 const searching = () => {
     searchButton.addEventListener('click', () => {
@@ -103,6 +106,37 @@ const searching = () => {
         };
     });
 };
+
+
+favoriteIcon.addEventListener('click', () => {
+    const isFavorite = localStorage.getItem('favoriteApi') === currentWeatherApi;
+
+    if (isFavorite) {
+        localStorage.removeItem('favoriteApi');
+    } else {
+        localStorage.setItem('favoriteApi', currentWeatherApi);
+    }
+
+    updateFavoriteImage(!isFavorite);
+});
+
+homeLink.addEventListener('click', () => {
+    const favoriteApi = localStorage.getItem('favoriteApi');
+
+    if (favoriteApi) {
+        currentWeatherApi = favoriteApi;
+
+        const cityName = new URL(favoriteApi).searchParams.get("q");
+        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+
+        runNewFetch();
+        forecastFetch();
+        fetchTodayHourlyForecast();
+        refreshFavoriteIcon();
+    } else {
+        alert("You haven't set a favorite location yet!");
+    }
+});
 
 
 const arrowButtons = () => {
@@ -160,13 +194,12 @@ const runNewFetch = () => {
                     return null;
                 }
 
-                weatherIcon = getNewIcon();
+                let weatherIcon = getNewIcon();
 
                 if (weatherIcon) {
                     icon.innerHTML = `<img alt="icon" src="${weatherIcon}" />`;
                 } else {
-                    const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
-                    weather.innerHTML = `${weatherType}`
+                    weather.innerHTML = weatherType;
                 }
 
                 //deploy to forecast table
@@ -241,13 +274,13 @@ const forecastFetch = () => {
             console.log("Unique first four days:", fourDayForecast);
 
             weatherTable.innerHTML = fourDayForecast.map(day => `
-                <div class="row">
-                    <div class="day">${day.day}</div>
-                    <div class="icon">
-                        <img class="icon-img" src="${day.icon}" />
+                    <div class="row">
+                        <div class="day">${day.day}</div>
+                        <div class="icon">
+                            <img class="icon-img" src="${day.icon}" />
+                        </div>
                     </div>
-                </div>
-            `).join(''); // Joins all rows together
+                `).join(''); // Joins all rows together
 
             fetchForecastTemp();
         })
@@ -316,11 +349,6 @@ const searchFunction = () => {
         return;
 
         // no city found
-    } else if (searchValue === undefined || searchValue === null || searchValue === '') {
-        alert('Unable to find city. Check spelling and try again');
-        return;
-
-        // if one search word
     } else if (words.length === 1) {
 
         currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
@@ -332,12 +360,16 @@ const searchFunction = () => {
         currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
 
         forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+        //update favorite mark
+
+
     } else {
         alert('Please try again');
     }
     runNewFetch();
     forecastFetch();
     fetchTodayHourlyForecast();
+    refreshFavoriteIcon();
 
 }
 
@@ -385,14 +417,14 @@ const fetchTodayHourlyForecast = () => {
             });
 
             weatherToday.innerHTML = hourlyForecast.map(interval => `
-                <div class="forecast-row">                    
-                    <div class="day">${interval.time}</div>
-                    <div class="icon">
-                        <img id="icon-img" src="${interval.icon}">
+                    <div class="forecast-row">                    
+                        <div class="day">${interval.time}</div>
+                        <div class="icon">
+                            <img id="icon-img" src="${interval.icon}">
+                        </div>
+                        <div class="temperature">${Math.round(interval.temp)}°C</div>
                     </div>
-                    <div class="temperature">${Math.round(interval.temp)}°C</div>
-                </div>
-            `).join('');
+                `).join('');
         })
         .catch((err) => console.error('Error fetching hourly forecast:', err));
 };
@@ -408,4 +440,13 @@ const changeBackground = () => {
         timeOfDay = 'night';
     }
     document.getElementById('top-half').className = timeOfDay;
+};
+
+const refreshFavoriteIcon = () => {
+    const favoriteApi = localStorage.getItem('favoriteApi');
+    updateFavoriteImage(favoriteApi === currentWeatherApi);
+};
+
+const updateFavoriteImage = (isFavorite) => {
+    favoriteIcon.src = isFavorite ? './images/heart-filled.png' : './images/heart-outline.png';
 };
