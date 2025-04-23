@@ -5,7 +5,7 @@
   --button-color: rgba(117, 122, 255, 255);
   --header-color: white;
   --table-background: white;
-  --table-hover-background: rgba(0, 0, 0, 0.16);
+  --table-hover-background: rgba(0, 0, 0, 0.03);
   --borders-table: none;
   --shadow: drop-shadow(0 3px 3px #777777);
 
@@ -62,7 +62,7 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-size: clamp(2.5rem, 4vw, 3rem);
 }
 
 h3 {
@@ -364,11 +364,13 @@ button img {
 }
 
 .day,
+.time,
 .temperature {
   font-size: clamp(1rem, 2vw, 2.5rem);
 }
 
-.day {
+.day,
+.time {
   display: inline-flex;
   justify-content: start;
   align-items: center;
@@ -516,6 +518,7 @@ button img {
   }
 
   .day,
+  .time,
   .temperature {
     line-height: 1.2;
     align-items: center;
@@ -627,6 +630,7 @@ button img {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
+    gap: 20px;
   }
 
   .row {
@@ -641,12 +645,30 @@ button img {
     padding: 15px;
   }
 
-  .day {
-    font-size: clamp(1rem, 3vw, 2rem);
+  .forecast-row {
+    justify-content: space-between;
+    width: 100%;
+    height: auto;
+    max-height: 40px;
+    overflow: visible;
+  }
+
+  .day,
+  .time {
     line-height: 1.1;
     padding-top: 10px;
     justify-content: center;
     padding: 0;
+  }
+
+  .day {
+    font-size: clamp(1rem, 3vw, 2rem);
+  }
+
+  .time {
+    font-size: clamp(1rem, 3vw, 2rem);
+    width: 60%;
+    justify-content: start;
   }
 
   .icon {
@@ -657,11 +679,22 @@ button img {
     width: 80%;
   }
 
+  #img-today {
+    width: auto;
+    height: 100%;
+    object-fit: contain;
+  }
+
   .temperature {
-    font-size: clamp(1rem, 3vw, 2rem);
+    font-size: clamp(1rem, 2vw, 2rem);
     line-height: 1.1;
     width: 100%;
     justify-content: center;
+    padding: 0 10px;
+  }
 
+  #temp-today {
+    width: 30%;
+    font-size: clamp(1rem, 3vw, 2rem);
   }
 }

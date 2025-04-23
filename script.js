@@ -140,7 +140,6 @@ homeLink.addEventListener('click', () => {
     }
 });
 
-
 const arrowButtons = () => {
     // next button and content swap
     nextButton.addEventListener('click', () => {
@@ -159,6 +158,40 @@ const arrowButtons = () => {
         nextButton.style.visibility = 'visible';
     });
 };
+
+//searchbar eventListener
+const searchFunction = () => {
+    let words = searchbar.value.split(' ');
+
+    let searchValue = searchbar.value.trim();
+
+    //if no search words
+    if (!searchValue) {
+        alert('Please enter a city name');
+        return;
+
+        // no city found
+    } else if (words.length === 1) {
+
+        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+
+        //if two search words, cities with double names
+    } else if (words.length === 2) {
+
+        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+
+        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+
+    } else {
+        alert('Please try again');
+    }
+    runNewFetch();
+    forecastFetch();
+    fetchTodayHourlyForecast();
+    refreshFavoriteIcon();
+};
+
 
 
 //fetching and deploying the information gotten to the app
@@ -243,24 +276,35 @@ const forecastFetch = () => {
                 return days[date.getDay()];
             };
 
-            const todayDate = new Date().getDate();
+            const now = new Date();
+            const todayKey = now.toISOString().split('T')[0];
+
             const eachNewDay = new Set();
             const fourDayForecast = [];
 
             //create converted time for each day and get an icon to insert onto web site
             for (let i = 0; i < data.list.length; i++) {
                 const item = data.list[i];
-                const date = new Date((item.dt + timezoneOffset) * 1000);
-                const calendarDate = date.getDate(); // Day of the month
+                const date = new Date(item.dt * 1000);
+                const dayKey = date.toISOString().split('T')[0];
+
                 const hour = date.getHours(); // local time
                 const dayName = convertTimestampToDay(item.dt, timezoneOffset);
 
-                if (
-                    calendarDate !== todayDate &&
-                    !eachNewDay.has(calendarDate) &&
-                    hour >= 11 && hour <= 13
-                ) {
-                    eachNewDay.add(calendarDate);
+                if (dayKey === todayKey) {
+                    if (!eachNewDay.has(dayKey)) {
+                        eachNewDay.add(dayKey);
+                        const originalWeatherIconCode = item.weather[0].icon;
+                        const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
+                        const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
+
+                        fourDayForecast.push({
+                            day: dayName,
+                            icon: forecastIcon
+                        });
+                    }
+                } else if (!eachNewDay.has(dayKey) && hour >= 11 && hour <= 13) {
+                    eachNewDay.add(dayKey);
                     // Find the correct image from swapIcons array
                     const originalWeatherIconCode = item.weather[0].icon;
                     const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
@@ -271,7 +315,7 @@ const forecastFetch = () => {
                         icon: forecastIcon
                     });
                 }
-                if (fourDayForecast.length === 4) break; // Stop once we have 4 unique days
+                if (fourDayForecast.length === 5) break; // Stop once we have 4 unique days
             }
 
 
@@ -305,8 +349,6 @@ const fetchForecastTemp = () => {
                 const dayKey = date.toISOString().split('T')[0]; // make YYYY-MM-DD
                 const calendarDate = date.getUTCDate();
 
-                // Skip today
-                if (calendarDate === todayDate) return;
 
                 // If not seen before, initialize
                 if (!tempsByDay[dayKey]) {
@@ -320,7 +362,7 @@ const fetchForecastTemp = () => {
                 }
             });
 
-            const fourDayTemps = Object.entries(tempsByDay).slice(0, 4);
+            const fourDayTemps = Object.entries(tempsByDay).slice(0, 5);
             const tempRows = document.querySelectorAll('.row');
 
             fourDayTemps.forEach(([date, temps], index) => {
@@ -341,40 +383,6 @@ const fetchForecastTemp = () => {
             });
         })
         .catch((error) => console.error("Error fetching forecast:", error));
-}
-
-
-//searchbar eventListener
-const searchFunction = () => {
-    let words = searchbar.value.split(' ');
-
-    let searchValue = searchbar.value.trim();
-
-    //if no search words
-    if (!searchValue) {
-        alert('Please enter a city name');
-        return;
-
-        // no city found
-    } else if (words.length === 1) {
-
-        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-        //if two search words, cities with double names
-    } else if (words.length === 2) {
-
-        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-    } else {
-        alert('Please try again');
-    }
-    runNewFetch();
-    forecastFetch();
-    fetchTodayHourlyForecast();
-    refreshFavoriteIcon();
 }
 
 
@@ -420,11 +428,11 @@ const fetchTodayHourlyForecast = () => {
 
             weatherToday.innerHTML = hourlyForecast.map(interval => `
                     <div class="forecast-row">                    
-                        <div class="day">${interval.time}</div>
-                        <div class="icon">
-                            <img id="icon-img" src="${interval.icon}">
+                        <div class="time">${interval.time}</div>
+                        <div class="icon" id="icon-today">
+                            <img class="icon-img" id="img-today" src="${interval.icon}">
                         </div>
-                        <div class="temperature">${Math.round(interval.temp)}°C</div>
+                        <div class="temperature" id="temp-today">${Math.round(interval.temp)}°C</div>
                     </div>
                 `).join('');
         })
@@ -436,11 +444,15 @@ const changeBackground = (timezoneOffset) => {
     if (!convertedRiseTime || !convertedSetTime) {
         // fallback
         const hour = new Date(Date.now() + timezoneOffset * 1000).getHours();
+        console.log("Current Hour:", hour); // Debug log
         const timeOfDay = hour >= 6 && hour < 19.5 ? 'daytime' : 'night';
+        console.log("Background Class (Fallback):", timeOfDay); // Debug log
         document.getElementById('top-half').className = timeOfDay;
         return;
     }
-
+    console.log("Converted Rise Time:", convertedRiseTime);
+    console.log("Converted Set Time:", convertedSetTime);
+    console.log("Timezone Offset:", timezoneOffset);
     const now = new Date(Date.now() + timezoneOffset * 1000);
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
@@ -452,6 +464,7 @@ const changeBackground = (timezoneOffset) => {
     const beforeSunset = currentHour < setHour || (currentHour === setHour && currentMinute < setMinute);
 
     const isDaytime = afterSunrise && beforeSunset;
+    console.log("Is Daytime:", isDaytime); // Debug log
 
     document.getElementById('top-half').className = isDaytime ? 'daytime' : 'night';
 };
