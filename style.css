@@ -199,6 +199,17 @@ nav img {
   aspect-ratio: 1 / 1;
 }
 
+#favorited {
+  cursor: pointer;
+}
+
+#favorited:hover {
+  cursor: pointer;
+  color: #6264a2;
+  transition: 0.5s;
+}
+
+
 header {
   display: flex;
   flex-wrap: wrap;
@@ -647,10 +658,10 @@ button img {
   }
 
   .temperature {
-    font-size: clamp(1rem, 2vw, 2rem);
+    font-size: clamp(1rem, 3vw, 2rem);
     line-height: 1.1;
     width: 100%;
     justify-content: center;
-    padding-bottom: 10px;
+
   }
 }

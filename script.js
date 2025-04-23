@@ -47,8 +47,8 @@ const previousButton = document.getElementById('previous-button');
 let convertedRiseTime = "";
 let convertedSetTime = "";
 
-let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
-let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=helsingborg&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
+let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
+let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 
 const savedApi = localStorage.getItem('favoriteApi');
 
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     arrowButtons();
     changeBackground();
     updateFavoriteImage(savedApi === currentWeatherApi);
-});
+})
 
 
 // dropdown-menu
@@ -81,20 +81,20 @@ const toggleDropdown = () => {
             dropdown.style.display = 'block';
         }
     });
-}
+};
 
 const loadDocumentCloseListener = () => {
     document.addEventListener('click', e => {
         if (!dropdown.contains(e.target) && e.target !== topMenu) {
             dropdown.style.display = "none";
-        };
+        }
     });
 };
 
 
 xIcon.addEventListener('click', () => {
     dropdown.style.display = 'none';
-})
+});
 
 const searching = () => {
     searchButton.addEventListener('click', () => {
@@ -158,12 +158,11 @@ const arrowButtons = () => {
         previousButton.style.visibility = 'hidden';
         nextButton.style.visibility = 'visible';
     });
-}
+};
 
 
 //fetching and deploying the information gotten to the app
 const runNewFetch = () => {
-    console.log('todays weather API', currentWeatherApi);
     fetch(currentWeatherApi)
         .then((respons) => {
             return respons.json()
@@ -172,7 +171,7 @@ const runNewFetch = () => {
 
             //if 404 error
             if (data.cod !== 200) {
-                alert('City not found. Please check the spelling and try again.');
+                ('City not found. Please check the spelling and try again.');
 
             } else {
                 //deploy to upper half of app
@@ -205,8 +204,8 @@ const runNewFetch = () => {
 
                 //deploy to forecast table
                 //converting to HH:MM, and logging the time  
-                const convertTime = (timestamp) => {
-                    const date = new Date(timestamp * 1000);
+                const convertTime = (timestamp, timezoneOffset) => {
+                    const date = new Date((timestamp + timezoneOffset) * 1000);
                     const options = {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -215,9 +214,11 @@ const runNewFetch = () => {
                     return date.toLocaleTimeString('en-GB', options);
                 };
 
-                // getting the actual times in HH:MM format
-                convertedRiseTime = convertTime(data.sys.sunrise);
-                convertedSetTime = convertTime(data.sys.sunset);
+                // getting the local actual times in HH:MM format
+                const timezoneOffset = data.timezone;
+
+                convertedRiseTime = convertTime(data.sys.sunrise, timezoneOffset);
+                convertedSetTime = convertTime(data.sys.sunset, timezoneOffset);
 
                 sunriseTime.innerHTML = `${convertedRiseTime}`
                 sunsetTime.innerHTML = `${convertedSetTime}`;
@@ -229,15 +230,16 @@ const runNewFetch = () => {
 
 //forecast icon and day
 const forecastFetch = () => {
-    console.log('current forecast Api is', forecastApi);
     fetch(forecastApi)
         .then((respons) => {
             return respons.json()
         })
         .then((data) => {
-            const convertTimestampToDay = (timestamp) => {
+            const timezoneOffset = data.city.timezone;
+
+            const convertTimestampToDay = (timestamp, timezoneOffset) => {
                 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                const date = new Date(timestamp * 1000); // Convert Unix timestamp to JS date
+                const date = new Date((timestamp + timezoneOffset) * 1000); // Convert Unix timestamp to JS date
                 return days[date.getDay()];
             };
 
@@ -248,10 +250,10 @@ const forecastFetch = () => {
             //create converted time for each day and get an icon to insert onto web site
             for (let i = 0; i < data.list.length; i++) {
                 const item = data.list[i];
-                const date = new Date(item.dt * 1000);
+                const date = new Date((item.dt + timezoneOffset) * 1000);
                 const calendarDate = date.getDate(); // Day of the month
                 const hour = date.getHours(); // local time
-                const dayName = convertTimestampToDay(item.dt);
+                const dayName = convertTimestampToDay(item.dt, timezoneOffset);
 
                 if (
                     calendarDate !== todayDate &&
@@ -263,7 +265,6 @@ const forecastFetch = () => {
                     const originalWeatherIconCode = item.weather[0].icon;
                     const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
                     const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
-                    console.log('it is', originalWeatherIconCode, fallbackIcon);
 
                     fourDayForecast.push({
                         day: dayName,
@@ -273,7 +274,6 @@ const forecastFetch = () => {
                 if (fourDayForecast.length === 4) break; // Stop once we have 4 unique days
             }
 
-            console.log("Unique first four days:", fourDayForecast);
 
             weatherTable.innerHTML = fourDayForecast.map(day => `
                     <div class="row">
@@ -291,19 +291,19 @@ const forecastFetch = () => {
 
 
 const fetchForecastTemp = () => {
-    console.log('current forecast temp Api is', forecastApi);
     fetch(forecastApi)
         .then((respons) => {
             return respons.json()
         })
         .then((data) => {
+            const timezoneOffset = data.city.timezone;
             const tempsByDay = {};
-            const todayDate = new Date().getDate();
+            const todayDate = new Date().getUTCDate();
 
             data.list.forEach(item => {
-                const date = new Date(item.dt * 1000);
+                const date = new Date((item.dt + timezoneOffset) * 1000);
                 const dayKey = date.toISOString().split('T')[0]; // make YYYY-MM-DD
-                const calendarDate = date.getDate();
+                const calendarDate = date.getUTCDate();
 
                 // Skip today
                 if (calendarDate === todayDate) return;
@@ -320,16 +320,23 @@ const fetchForecastTemp = () => {
                 }
             });
 
-            console.log("Temps by day:", tempsByDay);
             const fourDayTemps = Object.entries(tempsByDay).slice(0, 4);
             const tempRows = document.querySelectorAll('.row');
 
             fourDayTemps.forEach(([date, temps], index) => {
                 if (tempRows[index]) {
-                    const tempDiv = document.createElement('div');
-                    tempDiv.className = 'temperature';
-                    tempDiv.innerText = `${Math.round(temps.max)}°C / ${Math.round(temps.min)}°C`;
-                    tempRows[index].appendChild(tempDiv);
+                    let tempDiv = tempRows[index].querySelector('.temperature');
+
+                    if (tempDiv) {
+                        // If a .temperature div already exists, just update it
+                        tempDiv.innerText = `${Math.round(temps.max)}°C / ${Math.round(temps.min)}°C`;
+                    } else {
+                        // If not, create it and append it
+                        tempDiv = document.createElement('div');
+                        tempDiv.className = 'temperature';
+                        tempDiv.innerText = `${Math.round(temps.max)}°C / ${Math.round(temps.min)}°C`;
+                        tempRows[index].appendChild(tempDiv);
+                    }
                 }
             });
         })
@@ -373,11 +380,13 @@ const searchFunction = () => {
 
 // fetch for current days weather in 3h intervals
 const fetchTodayHourlyForecast = () => {
-    console.log('Fetching hourly forecast...', forecastApi);
     fetch(forecastApi)
         .then((res) => res.json())
         .then((data) => {
-            const now = new Date();
+            const timezoneOffset = data.city.timezone;
+            changeBackground(timezoneOffset);
+
+            const now = new Date(Date.now() + timezoneOffset * 1000);
             const todayYear = now.getFullYear();
             const todayMonth = now.getMonth();
             const todayDate = now.getDate();
@@ -385,7 +394,7 @@ const fetchTodayHourlyForecast = () => {
             const hourlyForecast = [];
 
             const todayForecasts = data.list.filter(item => {
-                const forecastDate = new Date(item.dt * 1000);
+                const forecastDate = new Date((item.dt + timezoneOffset) * 1000);
                 return (
                     forecastDate.getFullYear() === todayYear &&
                     forecastDate.getMonth() === todayMonth &&
@@ -394,17 +403,13 @@ const fetchTodayHourlyForecast = () => {
             });
 
 
-            console.log("Today's hourly forecast:");
-
             todayForecasts.forEach(item => {
-                const time = new Date(item.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const time = new Date((item.dt + timezoneOffset) * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                 const temp = item.main.temp;
                 const description = item.weather[0].description;
                 const originalIcon = item.weather[0].icon;
                 const fallbackIcon = `https://openweathermap.org/img/wn/${originalIcon}@2x.png`;
                 const forecastIcon = swapIcons[originalIcon] || fallbackIcon;
-
-                console.log(`${time} — ${temp}°C — ${description} — ${originalIcon}`);
 
                 hourlyForecast.push({
                     time,
@@ -427,16 +432,16 @@ const fetchTodayHourlyForecast = () => {
 };
 
 //change background, day/night
-const changeBackground = () => {
+const changeBackground = (timezoneOffset) => {
     if (!convertedRiseTime || !convertedSetTime) {
         // fallback
-        const hour = new Date().getHours();
+        const hour = new Date(Date.now() + timezoneOffset * 1000).getHours();
         const timeOfDay = hour >= 6 && hour < 19.5 ? 'daytime' : 'night';
         document.getElementById('top-half').className = timeOfDay;
         return;
     }
 
-    const now = new Date();
+    const now = new Date(Date.now() + timezoneOffset * 1000);
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
 
