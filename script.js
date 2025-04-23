@@ -276,7 +276,7 @@ const forecastFetch = () => {
                 return days[date.getDay()];
             };
 
-            const now = new Date();
+            const now = new Date(Date.now() + timezoneOffset * 1000);
             const todayKey = now.toISOString().split('T')[0];
 
             const eachNewDay = new Set();
@@ -291,8 +291,9 @@ const forecastFetch = () => {
                 const hour = date.getHours(); // local time
                 const dayName = convertTimestampToDay(item.dt, timezoneOffset);
 
-                if (dayKey === todayKey) {
-                    if (!eachNewDay.has(dayKey)) {
+                //adging today and four day forecast
+                if (!eachNewDay.has(dayKey)) {
+                    if (dayKey === todayKey || (hour >= 11 && hour <= 13)) {
                         eachNewDay.add(dayKey);
                         const originalWeatherIconCode = item.weather[0].icon;
                         const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
@@ -303,17 +304,6 @@ const forecastFetch = () => {
                             icon: forecastIcon
                         });
                     }
-                } else if (!eachNewDay.has(dayKey) && hour >= 11 && hour <= 13) {
-                    eachNewDay.add(dayKey);
-                    // Find the correct image from swapIcons array
-                    const originalWeatherIconCode = item.weather[0].icon;
-                    const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
-                    const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
-
-                    fourDayForecast.push({
-                        day: dayName,
-                        icon: forecastIcon
-                    });
                 }
                 if (fourDayForecast.length === 5) break; // Stop once we have 4 unique days
             }
@@ -342,13 +332,10 @@ const fetchForecastTemp = () => {
         .then((data) => {
             const timezoneOffset = data.city.timezone;
             const tempsByDay = {};
-            const todayDate = new Date().getUTCDate();
 
             data.list.forEach(item => {
                 const date = new Date((item.dt + timezoneOffset) * 1000);
                 const dayKey = date.toISOString().split('T')[0]; // make YYYY-MM-DD
-                const calendarDate = date.getUTCDate();
-
 
                 // If not seen before, initialize
                 if (!tempsByDay[dayKey]) {
@@ -414,7 +401,6 @@ const fetchTodayHourlyForecast = () => {
             todayForecasts.forEach(item => {
                 const time = new Date((item.dt + timezoneOffset) * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                 const temp = item.main.temp;
-                const description = item.weather[0].description;
                 const originalIcon = item.weather[0].icon;
                 const fallbackIcon = `https://openweathermap.org/img/wn/${originalIcon}@2x.png`;
                 const forecastIcon = swapIcons[originalIcon] || fallbackIcon;
