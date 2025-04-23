@@ -67,10 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleDropdown();
     searching();
     arrowButtons();
-    changeBackground();
     updateFavoriteImage(savedApi === currentWeatherApi);
-})
-
+});
 
 // dropdown-menu
 const toggleDropdown = () => {
@@ -204,7 +202,7 @@ const runNewFetch = () => {
 
             //if 404 error
             if (data.cod !== 200) {
-                ('City not found. Please check the spelling and try again.');
+                alert('City not found. Please check the spelling and try again.');
 
             } else {
                 //deploy to upper half of app
@@ -225,7 +223,7 @@ const runNewFetch = () => {
                         return swapIcons[iconKey];
                     }
                     return null;
-                }
+                };
 
                 let weatherIcon = getNewIcon();
 
@@ -255,8 +253,12 @@ const runNewFetch = () => {
 
                 sunriseTime.innerHTML = `${convertedRiseTime}`
                 sunsetTime.innerHTML = `${convertedSetTime}`;
-                changeBackground();
-            };
+                changeBackground(data.timezone);
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching current weather:", error);
+            alert('There was an issue fetching the weather. Please try again later.');
         });
 };
 
@@ -272,7 +274,7 @@ const forecastFetch = () => {
 
             const convertTimestampToDay = (timestamp, timezoneOffset) => {
                 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                const date = new Date((timestamp + timezoneOffset) * 1000); // Convert Unix timestamp to JS date
+                const date = new Date((timestamp + timezoneOffset) * 1000);
                 return days[date.getDay()];
             };
 
@@ -321,7 +323,7 @@ const forecastFetch = () => {
             fetchForecastTemp();
         })
         .catch((error) => console.error("Error fetching forecast:", error));
-}
+};
 
 
 const fetchForecastTemp = () => {
@@ -370,7 +372,7 @@ const fetchForecastTemp = () => {
             });
         })
         .catch((error) => console.error("Error fetching forecast:", error));
-}
+};
 
 
 // fetch for current days weather in 3h intervals
@@ -379,7 +381,6 @@ const fetchTodayHourlyForecast = () => {
         .then((res) => res.json())
         .then((data) => {
             const timezoneOffset = data.city.timezone;
-            changeBackground(timezoneOffset);
 
             const now = new Date(Date.now() + timezoneOffset * 1000);
             const todayYear = now.getFullYear();
@@ -430,15 +431,11 @@ const changeBackground = (timezoneOffset) => {
     if (!convertedRiseTime || !convertedSetTime) {
         // fallback
         const hour = new Date(Date.now() + timezoneOffset * 1000).getHours();
-        console.log("Current Hour:", hour); // Debug log
         const timeOfDay = hour >= 6 && hour < 19.5 ? 'daytime' : 'night';
-        console.log("Background Class (Fallback):", timeOfDay); // Debug log
         document.getElementById('top-half').className = timeOfDay;
         return;
     }
-    console.log("Converted Rise Time:", convertedRiseTime);
-    console.log("Converted Set Time:", convertedSetTime);
-    console.log("Timezone Offset:", timezoneOffset);
+
     const now = new Date(Date.now() + timezoneOffset * 1000);
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
@@ -450,7 +447,6 @@ const changeBackground = (timezoneOffset) => {
     const beforeSunset = currentHour < setHour || (currentHour === setHour && currentMinute < setMinute);
 
     const isDaytime = afterSunrise && beforeSunset;
-    console.log("Is Daytime:", isDaytime); // Debug log
 
     document.getElementById('top-half').className = isDaytime ? 'daytime' : 'night';
 };
