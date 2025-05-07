@@ -265,60 +265,60 @@ const runNewFetch = () => {
 
 //forecast icon and day
 const forecastFetch = () => {
+    console.log('current forecast Api is', forecastApi);
     fetch(forecastApi)
         .then((respons) => {
             return respons.json()
         })
         .then((data) => {
-            const timezoneOffset = data.city.timezone;
-
-            const convertTimestampToDay = (timestamp, timezoneOffset) => {
+            const convertTimestampToDay = (timestamp) => {
                 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                const date = new Date((timestamp + timezoneOffset) * 1000);
+                const date = new Date(timestamp * 1000); // Convert Unix timestamp to JS date
                 return days[date.getDay()];
             };
 
-            const now = new Date(Date.now() + timezoneOffset * 1000);
-            const todayKey = now.toISOString().split('T')[0];
-
+            const todayDate = new Date().getDate();
             const eachNewDay = new Set();
-            const fourDayForecast = [];
+            const fiveDayForecast = [];
 
-            //create converted time for each day and get an icon to insert onto web site
+            //create converted time for each day
             for (let i = 0; i < data.list.length; i++) {
                 const item = data.list[i];
                 const date = new Date(item.dt * 1000);
-                const dayKey = date.toISOString().split('T')[0];
-
+                const calendarDate = date.getDate(); // Day of the month
                 const hour = date.getHours(); // local time
-                const dayName = convertTimestampToDay(item.dt, timezoneOffset);
+                const dayName = convertTimestampToDay(item.dt);
 
-                //adging today and four day forecast
-                if (!eachNewDay.has(dayKey)) {
-                    if (dayKey === todayKey || (hour >= 11 && hour <= 13)) {
-                        eachNewDay.add(dayKey);
-                        const originalWeatherIconCode = item.weather[0].icon;
-                        const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
-                        const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
+                if (
+                    calendarDate !== todayDate &&
+                    !eachNewDay.has(calendarDate) &&
+                    hour >= 11 && hour <= 13
+                ) {
+                    eachNewDay.add(calendarDate);
+                    // Find the correct image from swapIcons
+                    const originalWeatherIconCode = item.weather[0].icon;
+                    const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
+                    const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
+                    console.log('it is', originalWeatherIconCode, fallbackIcon, forecastIcon, hour);
 
-                        fourDayForecast.push({
-                            day: dayName,
-                            icon: forecastIcon
-                        });
-                    }
+                    fiveDayForecast.push({
+                        day: dayName,
+                        icon: forecastIcon
+                    });
                 }
-                if (fourDayForecast.length === 5) break; // Stop once we have 4 unique days
+                if (fiveDayForecast.length === 4) break; // Stop once we have 5 unique days
             }
 
+            console.log("Unique first five days:", fiveDayForecast);
 
-            weatherTable.innerHTML = fourDayForecast.map(day => `
-                    <div class="row">
-                        <div class="day">${day.day}</div>
-                        <div class="icon">
-                            <img class="icon-img" src="${day.icon}" />
-                        </div>
+            weatherTable.innerHTML = fiveDayForecast.map(day => `
+                <div class="row">
+                    <div class="day">${day.day}</div>
+                    <div class="icon">
+                        <img class="icon-img" src="${day.icon}" />
                     </div>
-                `).join(''); // Joins all rows together
+                </div>
+            `).join(''); // Joins all rows together
 
             fetchForecastTemp();
         })
@@ -337,21 +337,23 @@ const fetchForecastTemp = () => {
 
             data.list.forEach(item => {
                 const date = new Date((item.dt + timezoneOffset) * 1000);
-                const dayKey = date.toISOString().split('T')[0]; // make YYYY-MM-DD
+                const dateAsString = date.toISOString().split('T')[0]; // make YYYY-MM-DD
 
                 // If not seen before, initialize
-                if (!tempsByDay[dayKey]) {
-                    tempsByDay[dayKey] = {
+                if (!tempsByDay[dateAsString]) {
+                    tempsByDay[dateAsString] = {
                         min: item.main.temp_min,
                         max: item.main.temp_max
                     };
                 } else {
-                    tempsByDay[dayKey].min = Math.min(tempsByDay[dayKey].min, item.main.temp_min);
-                    tempsByDay[dayKey].max = Math.max(tempsByDay[dayKey].max, item.main.temp_max);
+                    tempsByDay[dateAsString].min = Math.min(tempsByDay[dateAsString].min, item.main.temp_min);
+                    tempsByDay[dateAsString].max = Math.max(tempsByDay[dateAsString].max, item.main.temp_max);
                 }
             });
 
-            const fourDayTemps = Object.entries(tempsByDay).slice(0, 5);
+            const todayDateStr = new Date(Date.now() + timezoneOffset * 1000).toISOString().split('T')[0];
+            const futureTemps = Object.entries(tempsByDay).filter(([date]) => date !== todayDateStr);
+            const fourDayTemps = futureTemps.slice(0, 4);
             const tempRows = document.querySelectorAll('.row');
 
             fourDayTemps.forEach(([date, temps], index) => {
