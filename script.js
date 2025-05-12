@@ -114,10 +114,7 @@ const searching = () => {
     });
 };
 
-//swap to custom icon, else use default
-function getWeatherIcon(code) {
-    return swapIcons[code] || `https://openweathermap.org/img/wn/${code}@2x.png`;
-}
+
 
 
 favoriteIcon.addEventListener('click', () => {
@@ -207,56 +204,10 @@ const runNewFetch = () => {
             if (data.cod !== 200) {
                 const message = `City not found. Please check the spelling and try again.`;
                 createErrorMessage(message);
-
             } else {
                 //deploy to upper half of app
-                const tempWithComma = data.main.temp;
-                const temp = Math.round(tempWithComma);
-                currentTemperature.innerHTML = `${temp}°C`
-
-                city.innerHTML = `${data.name}`
-
-                const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ')
-                weather.innerHTML = `${weatherType}`
-
-                const weatherCode = data.weather.map(iconCode => iconCode.icon).join(', ');
-
-                const getNewIcon = () => {
-                    const iconKey = Object.keys(swapIcons).find((key) => key.toLowerCase() === weatherCode.toLowerCase());
-                    if (iconKey) {
-                        return swapIcons[iconKey];
-                    }
-                    return null;
-                };
-
-                let weatherIcon = getNewIcon();
-
-                if (weatherIcon) {
-                    icon.innerHTML = `<img alt="icon" src="${weatherIcon}" />`;
-                } else {
-                    weather.innerHTML = weatherType;
-                }
-
-                //deploy to forecast table
-                //converting to HH:MM, and logging the time  
-                const convertTime = (timestamp, timezoneOffset) => {
-                    const date = new Date((timestamp + timezoneOffset) * 1000);
-                    const options = {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
-                    };
-                    return date.toLocaleTimeString('en-GB', options);
-                };
-
-                // getting the local actual times in HH:MM format
-                const timezoneOffset = data.timezone;
-
-                convertedRiseTime = convertTime(data.sys.sunrise, timezoneOffset);
-                convertedSetTime = convertTime(data.sys.sunset, timezoneOffset);
-
-                sunriseTime.innerHTML = `${convertedRiseTime}`
-                sunsetTime.innerHTML = `${convertedSetTime}`;
+                updateCurrentWeather(data);
+                updateSunTimes(data);
                 changeBackground(data.timezone);
             }
         })
@@ -277,105 +228,15 @@ const forecastFetch = () => {
         .then((data) => {
             const timezoneOffset = data.city.timezone;
 
-            const convertTimestampToDay = (timestamp) => {
-                const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                const date = new Date((timestamp + timezoneOffset) * 1000); // Convert Unix timestamp to JS date
-                return days[date.getDay()];
-            };
-
-            const todayDate = new Date(Date.now() + timezoneOffset * 1000).getDate();
-            const eachNewDay = new Set();
-            const fiveDayForecast = [];
-
-            //create converted time for each day
-            for (let i = 0; i < data.list.length; i++) {
-                const item = data.list[i];
-                const localTimestamp = (item.dt + timezoneOffset) * 1000;
-                const date = new Date(localTimestamp);
-                const calendarDate = date.getDate(); // Day of the month
-                const hour = date.getHours(); // local time
-                const dayName = convertTimestampToDay(item.dt);
-
-                if (calendarDate !== todayDate && !eachNewDay.has(calendarDate) && hour >= 11 && hour <= 13) {
-                    eachNewDay.add(calendarDate);
-
-                    // Find the correct image from swapIcons
-                    const originalWeatherIconCode = item.weather[0].icon;
-                    const forecastIcon = getWeatherIcon(originalWeatherIconCode);
-
-
-                    fiveDayForecast.push({
-                        day: dayName,
-                        icon: forecastIcon
-                    });
-                }
-                if (fiveDayForecast.length === 4) break; // Stop once we have 5 unique days
-            }
-
-            weatherTable.innerHTML = fiveDayForecast.map(day => `
-                <div class="row">
-                    <div class="day">${day.day}</div>
-                    <div class="icon">
-                        <img class="icon-img" src="${day.icon}" />
-                    </div>
-                </div>
-            `).join(''); // Joins all rows together
-
-            fetchForecastTemp();
+            const forecast = getMiddayForecast(data.list, timezoneOffset);
+            getForecastIcons(forecast);
+            getForecastTemps(data.list, timezoneOffset);
         })
-        .catch((error) => console.error("Error fetching forecast:", error));
+        .catch(error => {
+            console.error("Error fetching forecast:", error?.message || error);
+        });
 };
 
-
-const fetchForecastTemp = () => {
-    fetch(forecastApi)
-        .then((respons) => {
-            return respons.json()
-        })
-        .then((data) => {
-            const timezoneOffset = data.city.timezone;
-            const tempsByDay = {};
-
-            data.list.forEach(item => {
-                const date = new Date((item.dt + timezoneOffset) * 1000);
-                const dateAsString = date.toISOString().split('T')[0]; // make YYYY-MM-DD
-
-                // If not seen before, initialize
-                if (!tempsByDay[dateAsString]) {
-                    tempsByDay[dateAsString] = {
-                        min: item.main.temp_min,
-                        max: item.main.temp_max
-                    };
-                } else {
-                    tempsByDay[dateAsString].min = Math.min(tempsByDay[dateAsString].min, item.main.temp_min);
-                    tempsByDay[dateAsString].max = Math.max(tempsByDay[dateAsString].max, item.main.temp_max);
-                }
-            });
-
-            const todayDateStr = new Date(Date.now() + timezoneOffset * 1000).toISOString().split('T')[0];
-            const futureTemps = Object.entries(tempsByDay).filter(([date]) => date !== todayDateStr);
-            const fourDayTemps = futureTemps.slice(0, 4);
-            const tempRows = document.querySelectorAll('.row');
-
-            fourDayTemps.forEach(([date, temps], index) => {
-                if (tempRows[index]) {
-                    let tempDiv = tempRows[index].querySelector('.temperature');
-
-                    if (tempDiv) {
-                        // If a .temperature div already exists, just update it
-                        tempDiv.innerText = `${Math.round(temps.max)}°C / ${Math.round(temps.min)}°C`;
-                    } else {
-                        // If not, create it and append it
-                        tempDiv = document.createElement('div');
-                        tempDiv.className = 'temperature';
-                        tempDiv.innerText = `${Math.round(temps.max)}°C / ${Math.round(temps.min)}°C`;
-                        tempRows[index].appendChild(tempDiv);
-                    }
-                }
-            });
-        })
-        .catch((error) => console.error("Error fetching forecast:", error));
-};
 
 
 // fetch for current days weather in 3h intervals
@@ -390,7 +251,6 @@ const fetchTodayHourlyForecast = () => {
             const todayMonth = now.getMonth();
             const todayDate = now.getDate();
 
-            const hourlyForecast = [];
 
             const todayForecasts = data.list.filter(item => {
                 const forecastDate = new Date((item.dt + timezoneOffset) * 1000);
@@ -401,30 +261,24 @@ const fetchTodayHourlyForecast = () => {
                 );
             });
 
-
-            todayForecasts.forEach(item => {
-                const time = new Date((item.dt + timezoneOffset) * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                const temp = item.main.temp;
-                const originalIcon = item.weather[0].icon;
-                const forecastIcon = getWeatherIcon(originalIcon); // Call our helper function
-
-
-                hourlyForecast.push({
-                    time,
-                    icon: forecastIcon,
-                    temp
-                });
+            const hourlyForecast = todayForecasts.map(item => {
+                const localTime = new Date((item.dt + timezoneOffset) * 1000);
+                return {
+                    time: localTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                    icon: getWeatherIcon(item.weather[0].icon),
+                    temp: item.main.temp
+                };
             });
 
             weatherToday.innerHTML = hourlyForecast.map(interval => `
-                    <div class="forecast-row">                    
-                        <div class="time">${interval.time}</div>
-                        <div class="icon" id="icon-today">
-                            <img class="icon-img" id="img-today" src="${interval.icon}">
-                        </div>
-                        <div class="temperature" id="temp-today">${Math.round(interval.temp)}°C</div>
+                <div class="forecast-row">                    
+                    <div class="time">${interval.time}</div>
+                    <div class="icon" id="icon-today">
+                        <img class="icon-img" id="img-today" src="${interval.icon}">
                     </div>
-                `).join('');
+                    <div class="temperature" id="temp-today">${Math.round(interval.temp)}°C</div>
+                </div>
+            `).join('');
         })
         .catch((err) => console.error('Error fetching hourly forecast:', err));
 };
@@ -469,5 +323,147 @@ const createErrorMessage = (message) => {
     setTimeout(() => {
         const errorMessage = document.getElementById('error-message');
         errorMessage.style.display = 'none';
-    }, 5000);
+    }, 4000);
 };
+
+//Current weather functions
+const updateCurrentWeather = (data) => {
+    const temp = data.main.temp.toFixed(1);
+    currentTemperature.innerHTML = `${temp}°C`;
+
+    city.innerHTML = `${data.name}`;
+
+    const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ');
+    weather.innerHTML = `${weatherType}`;
+
+    const weatherCode = data.weather.map(iconCode => iconCode.icon).join(', ');
+
+    const weatherIcon = getWeatherIcon(weatherCode);
+
+
+    if (weatherIcon) {
+        icon.innerHTML = `<img alt="icon" src="${weatherIcon}" />`;
+    } else {
+        weather.innerHTML = weatherType;
+    }
+
+};
+
+
+//swap to custom icon, else use default
+const getWeatherIcon = (code) => {
+    return swapIcons[code] || `https://openweathermap.org/img/wn/${code}@2x.png`;
+};
+
+
+const updateSunTimes = (data) => {
+    const timezoneOffset = data.timezone;
+    sunriseTime.innerHTML = convertTime(data.sys.sunrise, timezoneOffset);
+    sunsetTime.innerHTML = convertTime(data.sys.sunset, timezoneOffset);
+};
+
+const convertTime = (timestamp, timezoneOffset) => {
+    const date = new Date((timestamp + timezoneOffset) * 1000);
+    const options = {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    };
+    return date.toLocaleTimeString('en-GB', options);
+};
+
+
+//forcast functions
+//get day and icon for each day, and create an array with four day forecast
+const getMiddayForecast = (list, timezoneOffset) => {
+    const todayDate = new Date(Date.now() + timezoneOffset * 1000).getDate();
+    const eachNewDay = new Set();
+    const fourDayForecast = [];
+
+    for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const date = new Date((item.dt + timezoneOffset) * 1000); //makes it local time
+        const calendarDate = date.getDate();
+        const hour = date.getHours();
+
+
+        if (calendarDate !== todayDate && !eachNewDay.has(calendarDate) && hour >= 11 && hour <= 13) {
+            eachNewDay.add(calendarDate);
+            const originalWeatherIconCode = item.weather[0].icon;
+
+            fourDayForecast.push({
+                day: date.toLocaleDateString('en-GB', { weekday: 'short' }),
+                icon: getWeatherIcon(originalWeatherIconCode)
+            });
+        }
+        if (fourDayForecast.length === 4) break;
+    }
+    return fourDayForecast;
+};
+
+//Generate the content, inserting midday icon and day name
+const getForecastIcons = (forecast) => {
+    weatherTable.innerHTML = forecast.map(day => `
+        <div class="row">
+            <div class="day">${day.day}</div>
+            <div class="icon">
+                <img class="icon-img" src="${day.icon}" />
+            </div>
+        </div>
+    `).join('');
+};
+
+
+
+const getForecastTemps = (list, timezoneOffset) => {
+    const tempsByDate = combineTempsByDate(list, timezoneOffset);
+    renderForecastTemps(tempsByDate, timezoneOffset);
+};
+
+//creating a list of temps for the four day forecast
+const combineTempsByDate = (list, timezoneOffset) => {
+    const tempsByDay = {};
+
+    list.forEach(item => {
+        const date = new Date((item.dt + timezoneOffset) * 1000);
+        const dateAsString = date.toISOString().split('T')[0];
+
+        if (!tempsByDay[dateAsString]) {
+            tempsByDay[dateAsString] = {
+                min: item.main.temp_min,
+                max: item.main.temp_max
+            };
+        } else {
+            tempsByDay[dateAsString].min = Math.min(tempsByDay[dateAsString].min, item.main.temp_min);
+            tempsByDay[dateAsString].max = Math.max(tempsByDay[dateAsString].max, item.main.temp_max);
+        }
+    });
+    return tempsByDay;
+};
+
+
+// make list of coming four days' min/max temps, create "temperature" div
+const renderForecastTemps = (tempsByDay, timezoneOffset) => {
+    const today = new Date(Date.now() + timezoneOffset * 1000).toISOString().split('T')[0];
+    const rows = document.querySelectorAll('.row');
+
+    const fourDayTemps = Object.entries(tempsByDay).filter(([date]) => date !== today).slice(0, 4);
+
+    fourDayTemps.forEach(([date, temps], index) => {
+        const row = rows[index];
+        if (row) {
+            let tempDiv = row.querySelector('.temperature');
+            const tempText = `${Math.round(temps.max)}°C / ${Math.round(temps.min)}°C`;
+
+            if (tempDiv) {
+                tempDiv.innerText = tempText;
+            } else {
+                tempDiv = document.createElement('div');
+                tempDiv.className = 'temperature';
+                tempDiv.innerText = tempText;
+                row.appendChild(tempDiv);
+            }
+        }
+    });
+};
+
