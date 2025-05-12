@@ -44,8 +44,15 @@ const searchbar = document.getElementById('searchbar');
 const nextButton = document.getElementById('next-button');
 const previousButton = document.getElementById('previous-button');
 
+const errorMessage = document.getElementById('error-message');
+
 let convertedRiseTime = "";
 let convertedSetTime = "";
+
+const setApiUrls = (cityName) => {
+    currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+    forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+};
 
 let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
@@ -54,9 +61,8 @@ const savedApi = localStorage.getItem('favoriteApi');
 
 if (savedApi) {
     currentWeatherApi = savedApi;
-
     const cityName = new URL(savedApi).searchParams.get("q");
-    forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
+    setApiUrls(cityName);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -108,6 +114,11 @@ const searching = () => {
     });
 };
 
+//swap to custom icon, else use default
+function getWeatherIcon(code) {
+    return swapIcons[code] || `https://openweathermap.org/img/wn/${code}@2x.png`;
+}
+
 
 favoriteIcon.addEventListener('click', () => {
     const isFavorite = localStorage.getItem('favoriteApi') === currentWeatherApi;
@@ -124,17 +135,15 @@ homeLink.addEventListener('click', () => {
     const favoriteApi = localStorage.getItem('favoriteApi');
 
     if (favoriteApi) {
-        currentWeatherApi = favoriteApi;
-
         const cityName = new URL(favoriteApi).searchParams.get("q");
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
+        setApiUrls(cityName);
         runNewFetch();
         forecastFetch();
         fetchTodayHourlyForecast();
         refreshFavoriteIcon();
     } else {
-        alert("You haven't set a favorite location yet!");
+        const message = `You haven't set a favorite yet.`;
+        createErrorMessage(message);
     }
 });
 
@@ -159,35 +168,29 @@ const arrowButtons = () => {
 
 //searchbar eventListener
 const searchFunction = () => {
-    let words = searchbar.value.split(' ');
-
-    let searchValue = searchbar.value.trim();
+    let words = searchbar.value.trim().split(' ');
 
     //if no search words
-    if (!searchValue) {
-        alert('Please enter a city name');
+    if (!searchbar.value.trim()) {
+        const message = `Please enter a city name`;
+        createErrorMessage(message);
         return;
+    }
 
-        // no city found
-    } else if (words.length === 1) {
-
-        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-        //if two search words, cities with double names
+    if (words.length === 1) {
+        setApiUrls(words[0]);
     } else if (words.length === 2) {
-
-        currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
-        forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${words[0]}+${words[1]}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
-
+        setApiUrls(`${words[0]} ${words[1]}`);
     } else {
-        alert('Please try again');
+        const message = `Please try again`;
+        createErrorMessage(message);
     }
     runNewFetch();
     forecastFetch();
     fetchTodayHourlyForecast();
     refreshFavoriteIcon();
+
+    searchbar.value = '';
 };
 
 
@@ -202,7 +205,8 @@ const runNewFetch = () => {
 
             //if 404 error
             if (data.cod !== 200) {
-                alert('City not found. Please check the spelling and try again.');
+                const message = `City not found. Please check the spelling and try again.`;
+                createErrorMessage(message);
 
             } else {
                 //deploy to upper half of app
@@ -258,48 +262,47 @@ const runNewFetch = () => {
         })
         .catch((error) => {
             console.error("Error fetching current weather:", error);
-            alert('There was an issue fetching the weather. Please try again later.');
+            const message = `There was an issue fetching the weather data. Please try again later.`;
+            createErrorMessage(message);
         });
 };
 
 
 //forecast icon and day
 const forecastFetch = () => {
-    console.log('current forecast Api is', forecastApi);
     fetch(forecastApi)
         .then((respons) => {
             return respons.json()
         })
         .then((data) => {
+            const timezoneOffset = data.city.timezone;
+
             const convertTimestampToDay = (timestamp) => {
                 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                const date = new Date(timestamp * 1000); // Convert Unix timestamp to JS date
+                const date = new Date((timestamp + timezoneOffset) * 1000); // Convert Unix timestamp to JS date
                 return days[date.getDay()];
             };
 
-            const todayDate = new Date().getDate();
+            const todayDate = new Date(Date.now() + timezoneOffset * 1000).getDate();
             const eachNewDay = new Set();
             const fiveDayForecast = [];
 
             //create converted time for each day
             for (let i = 0; i < data.list.length; i++) {
                 const item = data.list[i];
-                const date = new Date(item.dt * 1000);
+                const localTimestamp = (item.dt + timezoneOffset) * 1000;
+                const date = new Date(localTimestamp);
                 const calendarDate = date.getDate(); // Day of the month
                 const hour = date.getHours(); // local time
                 const dayName = convertTimestampToDay(item.dt);
 
-                if (
-                    calendarDate !== todayDate &&
-                    !eachNewDay.has(calendarDate) &&
-                    hour >= 11 && hour <= 13
-                ) {
+                if (calendarDate !== todayDate && !eachNewDay.has(calendarDate) && hour >= 11 && hour <= 13) {
                     eachNewDay.add(calendarDate);
+
                     // Find the correct image from swapIcons
                     const originalWeatherIconCode = item.weather[0].icon;
-                    const fallbackIcon = `https://openweathermap.org/img/wn/${originalWeatherIconCode}@2x.png`;
-                    const forecastIcon = swapIcons[originalWeatherIconCode] || fallbackIcon;
-                    console.log('it is', originalWeatherIconCode, fallbackIcon, forecastIcon, hour);
+                    const forecastIcon = getWeatherIcon(originalWeatherIconCode);
+
 
                     fiveDayForecast.push({
                         day: dayName,
@@ -308,8 +311,6 @@ const forecastFetch = () => {
                 }
                 if (fiveDayForecast.length === 4) break; // Stop once we have 5 unique days
             }
-
-            console.log("Unique first five days:", fiveDayForecast);
 
             weatherTable.innerHTML = fiveDayForecast.map(day => `
                 <div class="row">
@@ -405,8 +406,8 @@ const fetchTodayHourlyForecast = () => {
                 const time = new Date((item.dt + timezoneOffset) * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                 const temp = item.main.temp;
                 const originalIcon = item.weather[0].icon;
-                const fallbackIcon = `https://openweathermap.org/img/wn/${originalIcon}@2x.png`;
-                const forecastIcon = swapIcons[originalIcon] || fallbackIcon;
+                const forecastIcon = getWeatherIcon(originalIcon); // Call our helper function
+
 
                 hourlyForecast.push({
                     time,
@@ -460,4 +461,13 @@ const refreshFavoriteIcon = () => {
 
 const updateFavoriteImage = (isFavorite) => {
     favoriteIcon.src = isFavorite ? './images/heart-filled.png' : './images/heart-outline.png';
+};
+
+const createErrorMessage = (message) => {
+    errorMessage.innerHTML = message;
+    errorMessage.style.display = 'block';
+    setTimeout(() => {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.style.display = 'none';
+    }, 5000);
 };

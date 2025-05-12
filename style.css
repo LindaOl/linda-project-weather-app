@@ -66,7 +66,7 @@ h2 {
 }
 
 h3 {
-  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
 }
 
 p {
@@ -132,6 +132,13 @@ nav img {
   cursor: pointer;
 }
 
+#error-message {
+  display: none;
+  color: red;
+  padding: 10px;
+  background-color: #f8d7da;
+  border-radius: 5px;
+}
 
 #dropdown-menu {
   display: none;
@@ -242,7 +249,7 @@ header {
 }
 
 #big-symbol img {
-  width: clamp(50px, 70%, 150px);
+  width: clamp(50px, 90%, 150px);
   height: auto;
 }
 
@@ -394,6 +401,8 @@ button img {
 .icon img {
   width: 9vw;
   height: auto;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .temperature {
@@ -410,7 +419,7 @@ button img {
 
 @media screen and (max-width: 950px) and (orientation: landscape) {
   h1 {
-    font-size: clamp(1.5rem, 4vw, 5rem);
+    font-size: clamp(1.5rem, 5vw, 5rem);
     line-height: 1.1;
   }
 
@@ -447,11 +456,15 @@ button img {
 
   #temp,
   #big-symbol {
-    display: inline-block;
+    display: inline-flex;
     min-width: 90px;
     max-width: 100%;
     height: 100%;
     padding: 0;
+  }
+
+  #temp {
+    justify-content: end;
   }
 
   #big-symbol img {
@@ -597,11 +610,23 @@ button img {
 
   #temp {
     justify-content: start;
-    align-items: end;
+    align-items: flex-start;
+    min-width: 200px;
+
   }
 
   #big-symbol {
     justify-content: start;
+  }
+
+  #sun {
+    display: flex;
+  }
+
+  #sunrise-sunset {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 10px;
   }
 
   #bottom-half {

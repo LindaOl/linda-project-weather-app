@@ -13,13 +13,26 @@ Replace this readme with your own information about the project. You can include
 
 # Approach
 - Made basic html
-- Started styling to get an idea of the layout and colors
-- Gave tags id
-- Fiddled around with aligning
-- When I had the main styling for mobile done i started on the js
-- Started with current-temperature variable
-- fetch current temperature to a specific city
+- Started styling to get an idea of the layout and colors, using design2 as a template
+- Gave tags id/class
+- When I had the main styling for mobile done I started on the js
+- Worked on fetches
+- Made changes as I continued to both HTML, CSS and Javascript
+- Added things like changing background, arrows to swwitch between forecasts, 
+
+- Used Visual Studios for the main code
+- Codepen to test code
+- Codepen and browser for testing and editing bits of code to make it work
+- AI to help me find mistakes in the code and to point out improvements
+
+# Possible changes
+- Making the code better
+- Working on getting todays forecast with mid day icon, min/max temp on the forecast page without it sometimes showing up twice as it did on my attempts.
+- Work more with styling
+- Make the dropdown prettier
+- Add another page for getting hourly forecast on the coming days when you click it. Think payed version of Open Weather Map is needed.
+
 
 
 ## View it live
-Every project should be deployed somewhere. Be sure to include the link to the deployed project so that the viewer can click around and see what it's all about.
+[Website](https://weather-app-technigo-linda.netlify.app/)
