@@ -11,24 +11,44 @@ const swapIcons = {
     '01n': './images/moon.png',
     '02n': './images/moon-cloud.png',
     '03n': './images/cloudy.png',
-    '04n': './images/darkclouds.png',
+    '04n': './images/moon-darkcloud.png',
     '09n': './images/rain.png',
     '10n': './images/moon-rain.png',
     '11n': './images/lightning.png',
     '13n': './images/snow.png',
     '50n': './images/mist.png'
-}
+};
 
+const getIconClass = (code) => {
+    switch (code) {
+        case '01d': return "sunny-icon";
+        case '02d': return "partly-cloudy-icon";
+        case '03d':
+        case '03n': return "cloudy-icon";
+        case '04d': return "darkclouds-icon";
+        case '10n': 
+        case '10d': 
+        case '09d':
+        case '09n': return "rain-icon";
+        case '11d': 
+        case '11n': return "lightning-icon";
+        case '13d':
+        case '13n': return "snow-icon";
+        case '50d':
+        case '50n': return "mist-icon";
+        case '01n': 
+        case '02n': 
+        case '04n': return "moon-icon";
+        default: return "";
+      }
+    };
 
-const icon = document.getElementById('big-symbol');
-const smallIcon = document.getElementById('icon');
 const currentTemperature = document.getElementById('current-temperature');
 const city = document.getElementById('city');
 const weather = document.getElementById('weather-condition');
 const sunriseTime = document.getElementById('sunrise-time');
 const sunsetTime = document.getElementById('sunset-time');
 const weatherTable = document.getElementById('weather-table');
-const bottomHalf = document.getElementById('bottom-half');
 const weatherToday = document.getElementById('weather-today');
 const todaysContainer = document.getElementById('todays-weather');
 const homeLink = document.getElementById('favorited');
@@ -49,13 +69,13 @@ const errorMessage = document.getElementById('error-message');
 let convertedRiseTime = "";
 let convertedSetTime = "";
 
+let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
+let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
+
 const setApiUrls = (cityName) => {
     currentWeatherApi = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
     forecastApi = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=6c71178607e75ed602e9cd6bb057db1b`;
 };
-
-let currentWeatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
-let forecastApi = 'https://api.openweathermap.org/data/2.5/forecast?q=stockholm&units=metric&limit=5&appid=6c71178607e75ed602e9cd6bb057db1b';
 
 const savedApi = localStorage.getItem('favoriteApi');
 
@@ -114,9 +134,6 @@ const searching = () => {
     });
 };
 
-
-
-
 favoriteIcon.addEventListener('click', () => {
     const isFavorite = localStorage.getItem('favoriteApi') === currentWeatherApi;
 
@@ -166,6 +183,7 @@ const arrowButtons = () => {
 //searchbar eventListener
 const searchFunction = () => {
     let words = searchbar.value.trim().split(' ');
+    let cityname = words.join('+');
 
     //if no search words
     if (!searchbar.value.trim()) {
@@ -174,14 +192,7 @@ const searchFunction = () => {
         return;
     }
 
-    if (words.length === 1) {
-        setApiUrls(words[0]);
-    } else if (words.length === 2) {
-        setApiUrls(`${words[0]} ${words[1]}`);
-    } else {
-        const message = `Please try again`;
-        createErrorMessage(message);
-    }
+    setApiUrls(cityname);
     runNewFetch();
     forecastFetch();
     fetchTodayHourlyForecast();
@@ -189,8 +200,6 @@ const searchFunction = () => {
 
     searchbar.value = '';
 };
-
-
 
 //fetching and deploying the information gotten to the app
 const runNewFetch = () => {
@@ -218,7 +227,6 @@ const runNewFetch = () => {
         });
 };
 
-
 //forecast icon and day
 const forecastFetch = () => {
     fetch(forecastApi)
@@ -237,8 +245,6 @@ const forecastFetch = () => {
         });
 };
 
-
-
 // fetch for current days weather in 3h intervals
 const fetchTodayHourlyForecast = () => {
     fetch(forecastApi)
@@ -250,7 +256,6 @@ const fetchTodayHourlyForecast = () => {
             const todayYear = now.getFullYear();
             const todayMonth = now.getMonth();
             const todayDate = now.getDate();
-
 
             const todayForecasts = data.list.filter(item => {
                 const forecastDate = new Date((item.dt + timezoneOffset) * 1000);
@@ -273,8 +278,8 @@ const fetchTodayHourlyForecast = () => {
             weatherToday.innerHTML = hourlyForecast.map(interval => `
                 <div class="forecast-row">                    
                     <div class="time">${interval.time}</div>
-                    <div class="icon" id="icon-today">
-                        <img class="icon-img" id="img-today" src="${interval.icon}">
+                    <div class="icon today-icon">
+                        <img class="icon-img" alt="weather-icon" src="${interval.icon}">
                     </div>
                     <div class="temperature" id="temp-today">${Math.round(interval.temp)}°C</div>
                 </div>
@@ -288,7 +293,7 @@ const changeBackground = (timezoneOffset) => {
     if (!convertedRiseTime || !convertedSetTime) {
         // fallback
         const hour = new Date(Date.now() + timezoneOffset * 1000).getHours();
-        const timeOfDay = hour >= 6 && hour < 19.5 ? 'daytime' : 'night';
+        const timeOfDay = hour >= 6 && hour < 19 ? 'daytime' : 'night';
         document.getElementById('top-half').className = timeOfDay;
         return;
     }
@@ -336,30 +341,29 @@ const updateCurrentWeather = (data) => {
     const weatherType = data.weather.map(typeWeather => typeWeather.main).join(', ');
     weather.innerHTML = `${weatherType}`;
 
-    const weatherCode = data.weather.map(iconCode => iconCode.icon).join(', ');
-
-    const weatherIcon = getWeatherIcon(weatherCode);
-
-
-    if (weatherIcon) {
-        icon.innerHTML = `<img alt="icon" src="${weatherIcon}" />`;
-    } else {
-        weather.innerHTML = weatherType;
-    }
-
+    const iconCode = data.weather[0].icon;
+  updateWeatherIcon(iconCode);  
 };
 
-
-//swap to custom icon, else use default
+const updateWeatherIcon = (iconCode) => {  
+  const iconContainer = document.getElementById("icon-wrap");
+  const iconPath = swapIcons[iconCode] || `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+  
+  iconContainer.innerHTML = `<img alt="weather icon" id="mainIcon" src="${iconPath}" />`;
+  iconContainer.className = getIconClass(iconCode);  
+};
+   
 const getWeatherIcon = (code) => {
-    return swapIcons[code] || `https://openweathermap.org/img/wn/${code}@2x.png`;
-};
-
+  return swapIcons[code] || `https://openweathermap.org/img/wn/${code}@2x.png`;
+}
 
 const updateSunTimes = (data) => {
     const timezoneOffset = data.timezone;
     sunriseTime.innerHTML = convertTime(data.sys.sunrise, timezoneOffset);
     sunsetTime.innerHTML = convertTime(data.sys.sunset, timezoneOffset);
+
+    convertedRiseTime = convertTime(data.sys.sunrise, timezoneOffset);
+    convertedSetTime = convertTime(data.sys.sunset, timezoneOffset);
 };
 
 const convertTime = (timestamp, timezoneOffset) => {
@@ -371,7 +375,6 @@ const convertTime = (timestamp, timezoneOffset) => {
     };
     return date.toLocaleTimeString('en-GB', options);
 };
-
 
 //forcast functions
 //get day and icon for each day, and create an array with four day forecast
@@ -407,13 +410,11 @@ const getForecastIcons = (forecast) => {
         <div class="row">
             <div class="day">${day.day}</div>
             <div class="icon">
-                <img class="icon-img" src="${day.icon}" />
+                <img class="icon-img" alt="weather-icon" src="${day.icon}" />
             </div>
         </div>
     `).join('');
 };
-
-
 
 const getForecastTemps = (list, timezoneOffset) => {
     const tempsByDate = combineTempsByDate(list, timezoneOffset);
@@ -441,7 +442,6 @@ const combineTempsByDate = (list, timezoneOffset) => {
     return tempsByDay;
 };
 
-
 // make list of coming four days' min/max temps, create "temperature" div
 const renderForecastTemps = (tempsByDay, timezoneOffset) => {
     const today = new Date(Date.now() + timezoneOffset * 1000).toISOString().split('T')[0];
@@ -466,4 +466,3 @@ const renderForecastTemps = (tempsByDay, timezoneOffset) => {
         }
     });
 };
-
