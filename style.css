@@ -318,25 +318,23 @@ header {
 }
 
 #icon-wrap.rain-icon::before {
-  left: 30%;               /* move closer to center */
+  left: 40%;               /* move closer to center */
   transform: translateX(-50%) rotate(-45deg); /* center and rotate */
   animation-delay: 0s;
   box-shadow:
     0 0 var(--rain),
     10px 0 var(--rain),
     20px 0 var(--rain),
-    30px 0 var(--rain),
-    40px 0 var(--rain);
+    30px 0 var(--rain);
 }
 
 #icon-wrap.rain-icon::after {
-  left: 40%;               /* move closer to center */
+  left: 50%;               /* move closer to center */
   transform: translateX(-30%) rotate(-45deg);
   animation-delay: 0.2s;
   box-shadow:
   10px 0 var(--rain),
-  20px 0 var(--rain),
-  30px 0 var(--rain);
+  20px 0 var(--rain);
 }
 
 /* Lightning */
@@ -884,5 +882,13 @@ button img {
   #temp-today {
     width: 30%;
     font-size: clamp(1rem, 3vw, 2rem);
+  }
+
+  #icon-wrap.rain-icon::before {
+    left: 35%;               /* move closer to center */
+  }
+  
+  #icon-wrap.rain-icon::after {
+    left: 45%; 
   }
 }
