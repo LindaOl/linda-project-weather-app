@@ -290,27 +290,42 @@ const fetchTodayHourlyForecast = () => {
 
 //change background, day/night
 const changeBackground = (timezoneOffset) => {
-    if (!convertedRiseTime || !convertedSetTime) {
-        // fallback
-        const hour = new Date(Date.now() + timezoneOffset * 1000).getHours();
-        const timeOfDay = hour >= 6 && hour < 19 ? 'daytime' : 'night';
-        document.getElementById('top-half').className = timeOfDay;
-        return;
-    }
+    //get local time
+    const nowUtc = new Date(Date.now());
+    const nowUtcMillis = nowUtc.getTime() + (nowUtc.getTimezoneOffset() * 60 * 1000);
+    const locationTime = new Date(nowUtcMillis + timezoneOffset * 1000);
+    const currentHour = locationTime.getHours();
+    const currentMinute = locationTime.getMinutes();
+ 
+    // fallback
+   if (!convertedRiseTime || !convertedSetTime) {
+       const timeOfDay = currentHour >= 6 && currentHour < 19 ? 'daytime' : 'night';
+       document.getElementById('top-half').className = timeOfDay;
+       return;
+   }
 
-    const now = new Date(Date.now() + timezoneOffset * 1000);
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+   // for those areas with no sunrise or sunset, like arctic areas
+   if (convertedRiseTime === convertedSetTime) {
+       const month = locationTime.getMonth() + 1;        
+       // spring-autumn
+       if (month >= 3 && month <= 9) {
+           document.getElementById('top-half').className = 'daytime';
+       } else {
+           // winter
+           document.getElementById('top-half').className = 'night';
+       }
+       return;
+   }      
 
-    const [riseHour, riseMinute] = convertedRiseTime.split(':').map(Number);
-    const [setHour, setMinute] = convertedSetTime.split(':').map(Number);
+   const [riseHour, riseMinute] = convertedRiseTime.split(':').map(Number);
+   const [setHour, setMinute] = convertedSetTime.split(':').map(Number);
 
-    const afterSunrise = currentHour > riseHour || (currentHour === riseHour && currentMinute >= riseMinute);
-    const beforeSunset = currentHour < setHour || (currentHour === setHour && currentMinute < setMinute);
+   const afterSunrise = currentHour > riseHour || (currentHour === riseHour && currentMinute >= riseMinute);
+   const beforeSunset = currentHour < setHour || (currentHour === setHour && currentMinute < setMinute);
 
-    const isDaytime = afterSunrise && beforeSunset;
+   const isDaytime = afterSunrise && beforeSunset;
 
-    document.getElementById('top-half').className = isDaytime ? 'daytime' : 'night';
+   document.getElementById('top-half').className = isDaytime ? 'daytime' : 'night';
 };
 
 const refreshFavoriteIcon = () => {
