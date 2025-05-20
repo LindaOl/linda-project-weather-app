@@ -8,6 +8,7 @@
   --table-hover-background: rgba(0, 0, 0, 0.03);
   --borders-table: none;
   --shadow: drop-shadow(0 3px 3px #777777);
+  --rain: rgba(67, 171, 228, 0.8);
 
   --font-family-sans-serif: "Montserrat", "Helvetica", sans-serif;
   --main-font-family-sans-serif: "Saira", "Helvetica", sans-serif;
@@ -307,32 +308,35 @@ header {
 #icon-wrap.rain-icon::after {
   content: "";
   position: absolute;
-  bottom: 15px;
+  bottom: 20px;
   width: 3px;
-  height: 10px;
-  background: rgba(46, 167, 224, 0.8);
+  height: 8px;
+  background: var(--rain);
   border-radius: 50% / 50%;
   animation: rain-fall 1s linear infinite;
   transform-origin: bottom center;
 }
 
 #icon-wrap.rain-icon::before {
-  left: 50%;               /* move closer to center */
-  transform: translateX(-60%) rotate(-45deg); /* center and rotate */
+  left: 30%;               /* move closer to center */
+  transform: translateX(-50%) rotate(-45deg); /* center and rotate */
   animation-delay: 0s;
   box-shadow:
-  10px 0 rgba(0, 122, 255, 0.8),
-  20px 0 rgba(0, 122, 255, 0.8),
-  30px 0 rgba(0, 122, 255, 0.8);
+    0 0 var(--rain),
+    10px 0 var(--rain),
+    20px 0 var(--rain),
+    30px 0 var(--rain),
+    40px 0 var(--rain);
 }
 
 #icon-wrap.rain-icon::after {
-  left: 60%;               /* move closer to center */
-  transform: translateX(-40%) rotate(-45deg);
+  left: 40%;               /* move closer to center */
+  transform: translateX(-30%) rotate(-45deg);
   animation-delay: 0.2s;
   box-shadow:
-  10px 0 rgba(0, 122, 255, 0.8),
-  20px 0 rgba(0, 122, 255, 0.8);
+  10px 0 var(--rain),
+  20px 0 var(--rain),
+  30px 0 var(--rain);
 }
 
 /* Lightning */
@@ -376,11 +380,11 @@ header {
 
 @keyframes rain-fall {
   0% {
-    transform: rotate(-20deg) translateX(-50%) translateY(0);
+    transform: rotate(-13deg) translateX(-50%) translateY(0);
     opacity: 1;
   }
   100% {
-    transform: rotate(-20deg) translateX(-50%) translateY(20px);
+    transform: rotate(-13deg) translateX(-50%) translateY(20px);
     opacity: 0;
   }
 }
