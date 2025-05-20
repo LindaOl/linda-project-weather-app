@@ -25,7 +25,9 @@ Replace this readme with your own information about the project. You can include
 - Made changes as needed to the HTML, CSS and Javascript, fixing broken code, when incorrect information was displayed and so on.
 - Added things like changing background on sunset/sunrise, arrows to switch between forecasts, favorite function, made timezone offset, swapped to make todays hourly forecast as the first page, and four day forecast when using the arrow button
 - Created error messages
-- Tried to make the code less complex and improv readability by extracting code from the fetch and making more manageable snippets of code, andcaling for them in the fetch
+- Tried to make the code less complex and improve readability by extracting code from the fetch and making more manageable snippets of code, andcaling for them in the fetch
+- Added switch and animations.
+- Noticed arctic areas with no sunset/sunrise got the wrong background. Made changes.
 
 # Tools
 - Used Visual Studios for the main code
